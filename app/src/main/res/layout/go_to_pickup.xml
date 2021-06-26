@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gotoPickupLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    tools:context=".MainActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.934">
+
+        <RelativeLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/layout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvPickupPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="Pick up"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvPickupAddress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxWidth="200dp"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="karachi naseeb biryani"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvPickupAddress"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvOrderRefNoPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view1"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Order Ref.No"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvOrderRefNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view1"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="544215646123"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvOrderRefNo"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvDistancePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view2"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Distance from pickup"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvDistanceFromPickup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view2"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="16km"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view3"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvDistanceFromPickup"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvEstimatedFarePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view3"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Estimated Fare"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvEstimatedFare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view3"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Rs.250.00"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view4"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvEstimatedFare"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvETAPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view4"
+                    android:layout_alignParentStart="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="ETA"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvETA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view4"
+                    android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="30 Mins"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/view6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/layout2"
+                android:background="@color/grey_40" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view6"
+                android:orientation="horizontal"
+                android:weightSum="3">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelJob"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="0.9"
+                    android:backgroundTint="@color/white"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:lines="1"
+                    android:text="Cancel"
+                    android:textColor="@color/black"
+                    android:textSize="12dp"
+                    android:includeFontPadding="false"
+                    app:cornerRadius="10dp"
+                    app:rippleColor="@color/black" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCall"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1.2"
+                    app:cornerRadius="10dp"
+                    app:icon="@drawable/phone_icon"
+                    app:iconGravity="textStart"
+                    app:iconSize="40dp"
+                    app:iconTint="@color/myColor"
+                    app:strokeColor="@color/myColor"
+                    app:strokeWidth="1dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPickup"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="0.9"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:lines="1"
+                    android:text="Pickup"
+                    android:includeFontPadding="false"
+                    android:textColor="@color/white"
+                    android:textFontWeight="500"
+                    android:textSize="12dp"
+                    app:cornerRadius="10dp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/yesterdayLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="visible"
+    tools:context=".MainActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.759">
+
+        <TextView
+            android:id="@+id/yesterday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:gravity="center_horizontal"
+            android:includeFontPadding="false"
+            android:letterSpacing="0.05"
+            android:padding="10dp"
+            android:text="Yesterday"
+            android:textColor="@color/black"
+            android:textFontWeight="600"
+            android:textSize="22sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/tvMoneyEarnedPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Money earned"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvMoneyEarned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvMoneyEarnedPlace"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:text="PKR0.0"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalDistancePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvMoneyEarned"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Total Distance"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalDistanceCovered"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvTotalDistancePlace"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:letterSpacing="0.05"
+                    android:text="102km"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/tvHoursSpentOnlinePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:padding="10dp"
+                    android:text="Hours spent online"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvHoursSpentOnline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvHoursSpentOnlinePlace"
+                    android:layout_marginStart="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:letterSpacing="0.05"
+                    android:text="9 Hrs"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalJobsPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvHoursSpentOnline"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Total Jobs"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalJobs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvTotalJobsPlace"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:letterSpacing="0.05"
+                    android:text="10"
+                    android:textColor="@color/myColor"
+                    android:textFontWeight="500"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnGoOnline"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_margin="20dp"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:text="Go Online"
+        android:textColor="@color/white"
+        android:textFontWeight="600"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintVertical_bias="0.934" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

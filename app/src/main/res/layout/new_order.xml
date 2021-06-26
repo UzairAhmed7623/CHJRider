@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/newOrderLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    tools:context=".MainActivity">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="5dp"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.934">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tvPickUpPlace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:letterSpacing="0.05"
+                        android:padding="10dp"
+                        android:text="Pick up"
+                        android:textColor="@color/black"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvPickUp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvPickUpPlace"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="5dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:lines="2"
+                        android:maxLines="2"
+                        android:text="karachi naseeb biryani"
+                        android:textColor="@color/myColor"
+                        android:textFontWeight="500"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvTotalDistancePlace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvPickUp"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:letterSpacing="0.05"
+                        android:padding="10dp"
+                        android:text="Total Distance"
+                        android:textColor="@color/black"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvTotalDistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvTotalDistancePlace"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:letterSpacing="0.05"
+                        android:text="102km"
+                        android:textColor="@color/myColor"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+                    <TextView
+                        android:id="@+id/tvDropoffPlace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:padding="10dp"
+                        android:text="Drop off"
+                        android:textColor="@color/black"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvDropOff"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvDropoffPlace"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="5dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:lines="2"
+                        android:maxLines="2"
+                        android:text="744, 7th floor Madina Tower cenel Lahore"
+                        android:textColor="@color/myColor"
+                        android:textFontWeight="500"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/tvEstFarePlace"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvDropOff"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:includeFontPadding="false"
+                        android:letterSpacing="0.05"
+                        android:padding="10dp"
+                        android:text="Est. fare"
+                        android:textColor="@color/black"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvEstFare"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tvEstFarePlace"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:gravity="start"
+                        android:letterSpacing="0.05"
+                        android:text="Rs. 250.00"
+                        android:textColor="@color/myColor"
+                        android:textFontWeight="500"
+                        android:textSize="16sp" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <View
+                android:id="@+id/view"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/layout"
+                android:background="@color/grey_40" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIgnoreJob"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="5dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/white"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:text="Ignore job"
+                    android:textColor="@color/black"
+                    android:textFontWeight="500"
+                    app:cornerRadius="10dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnAcceptJob"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:text="Accept job"
+                    android:textColor="@color/white"
+                    android:textFontWeight="500"
+                    app:cornerRadius="10dp" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
