@@ -22,4 +22,6 @@
 
     <include layout="@layout/go_to_pickup" />
 
+    <include layout="@layout/go_to_dropoff" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,6 +32,7 @@ import com.akexorcist.googledirection.model.Route;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -66,6 +67,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.inkhornsolutions.chjrider.Common.Common;
 import com.inkhornsolutions.chjrider.EventBus.DriverRequestRecieved;
@@ -98,11 +100,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private GoogleMap mgoogleMap;
-    private MaterialButton btnGoOnline, btnIgnoreJob, btnAcceptJob, btnCancelJob, btnCall, btnPickup;
+    private MaterialButton btnGoOnline, btnIgnoreJob, btnAcceptJob, btnCancelJob, btnCall, btnPickup, btnDropOff, btnCancelDropOffJob, btnDropOffCall;
     private TextView tvMoneyEarned, tvHoursSpentOnline, tvTotalDistanceCovered, tvTotalJobs;
     private TextView tvPickUp, tvDropOff, tvTotalDistance, tvEstFare;
     private TextView tvPickupAddress, tvOrderRefNo, tvDistanceFromPickup, tvEstimatedFare, tvETA;
-    private ConstraintLayout yesterdayLayout, newOrderLayout, gotoPickupLayout;
+    private TextView tvDropOffAddress, tvDropOffOrderRefNo, tvDistanceFromDropOff, tvEstimatedFareDropOff;
+    private ConstraintLayout yesterdayLayout, newOrderLayout, gotoPickupLayout, gotoDropOffLayout;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
@@ -111,18 +114,89 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     GeoFire geoFire;
     GeoQuery geoQuery;
     private GeoFire pickupGeoFire, destinationGeoFire;
+    private GeoQuery pickupGeoQuery, destinationGeoQuery;
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private DatabaseReference driverLocationRef,currentUserRef;
     private String id;
-    private String tripNumberId = "";
+    private String tripNumberId;
     private boolean isTripStart = false;
 
     private DriverRequestRecieved driverRequestReceived;
     private Polyline blackPolyLine, greyPolyline;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private List<LatLng> polylineList;
+
+    private GeoQueryEventListener pickupGeoQueryEventListner = new GeoQueryEventListener() {
+        @Override
+        public void onKeyEntered(String key, GeoLocation location) {
+//            btnStartRide.setEnabled(true);
+
+            UserUtils.sendNotifyToRider(MainActivity.this, gotoDropOffLayout, key);
+
+            if (pickupGeoQuery != null) {
+                if (pickupGeoFire != null){
+                    pickupGeoFire.removeLocation(key);
+                }
+                pickupGeoFire = null;
+                pickupGeoQuery.removeAllListeners();
+            }
+        }
+
+        @Override
+        public void onKeyExited(String key) {
+//            btnStartRide.setEnabled(false);
+        }
+
+        @Override
+        public void onKeyMoved(String key, GeoLocation location) {
+
+        }
+
+        @Override
+        public void onGeoQueryReady() {
+
+        }
+
+        @Override
+        public void onGeoQueryError(DatabaseError error) {
+
+        }
+    };
+
+    private GeoQueryEventListener destinationGeoQueryEventListner = new GeoQueryEventListener() {
+        @Override
+        public void onKeyEntered(String key, GeoLocation location) {
+//            btnCompleteRide.setEnabled(true);
+            if (destinationGeoQuery != null) {
+                destinationGeoFire.removeLocation(key);
+                destinationGeoFire = null;
+                destinationGeoQuery.removeAllListeners();
+            }
+        }
+
+        @Override
+        public void onKeyExited(String key) {
+
+        }
+
+        @Override
+        public void onKeyMoved(String key, GeoLocation location) {
+
+        }
+
+        @Override
+        public void onGeoQueryReady() {
+
+        }
+
+        @Override
+        public void onGeoQueryError(DatabaseError error) {
+
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +235,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         tvETA = (TextView) findViewById(R.id.tvETA);
         gotoPickupLayout = (ConstraintLayout) findViewById(R.id.gotoPickupLayout);
 
+        //go to drop off layout
+        btnDropOff = (MaterialButton) findViewById(R.id.btnDropOff);
+        btnCancelDropOffJob = (MaterialButton) findViewById(R.id.btnCancelDropOffJob);
+        btnDropOffCall = (MaterialButton) findViewById(R.id.btnDropOffCall);
+        tvDropOffAddress = (TextView) findViewById(R.id.tvDropOffAddress);
+        tvDropOffOrderRefNo = (TextView) findViewById(R.id.tvDropOffOrderRefNo);
+        tvDistanceFromDropOff = (TextView) findViewById(R.id.tvDistanceFromDropOff);
+        tvEstimatedFareDropOff = (TextView) findViewById(R.id.tvEstimatedFareDropOff);
+        tvETA = (TextView) findViewById(R.id.tvETA);
+        gotoDropOffLayout = (ConstraintLayout) findViewById(R.id.gotoDropOffLayout);
 
         btnGoOnline.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,7 +350,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
 
                     //draw path
-//                    drawPathFromCurrentLocation(driverRequestReceived.getDestinationLocation());
+                    drawPathFromCurrentLocation(driverRequestReceived.getPickupLocation());
                 }
 
                 gotoPickupLayout.setVisibility(View.GONE);
@@ -278,6 +362,94 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
+    }
+
+    private void drawPathFromCurrentLocation(String PickupLocation) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                try {
+
+                    LatLng originLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    LatLng pickUpLatLng = new LatLng(
+                            Double.parseDouble(PickupLocation.split(",")[0]),
+                            Double.parseDouble(PickupLocation.split(",")[1]));
+
+                    Log.d("address: ", "Chala1");
+
+                    Log.d("address: ", "" + pickUpLatLng);
+
+                    GoogleDirection.withServerKey(DIRECTION_API_KEY)
+                            .from(originLatLng)
+                            .to(pickUpLatLng)
+                            .execute(new DirectionCallback() {
+                                @Override
+                                public void onDirectionSuccess(@Nullable Direction direction) {
+                                    Route route = direction.getRouteList().get(0);
+                                    Leg leg = route.getLegList().get(0);
+
+                                    polylineList = leg.getDirectionPoint();
+
+
+                                    polylineOptions = new PolylineOptions();
+                                    polylineOptions.color(Color.GRAY);
+                                    polylineOptions.width(12);
+                                    polylineOptions.startCap(new SquareCap());
+                                    polylineOptions.jointType(JointType.ROUND);
+                                    polylineOptions.addAll(polylineList);
+                                    greyPolyline = mgoogleMap.addPolyline(polylineOptions);
+
+                                    blackPolylineOptions = new PolylineOptions();
+                                    blackPolylineOptions.color(Color.BLACK);
+                                    blackPolylineOptions.width(5);
+                                    blackPolylineOptions.startCap(new SquareCap());
+                                    blackPolylineOptions.jointType(JointType.ROUND);
+                                    blackPolylineOptions.addAll(polylineList);
+                                    greyPolyline = mgoogleMap.addPolyline(polylineOptions);
+                                    blackPolyLine = mgoogleMap.addPolyline(blackPolylineOptions);
+
+                                    LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                                            .include(originLatLng)
+                                            .include(pickUpLatLng)
+                                            .build();
+
+                                    createGeoFireDestinationLocation(driverRequestReceived.getKey(), pickUpLatLng);
+
+                                    mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
+                                    mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
+
+                                }
+                                @Override
+                                public void onDirectionFailure(@NonNull Throwable t) {
+                                    Log.d("address: ", "Chala2");
+
+                                    Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+                } catch (Exception e) {
+                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    Log.d("address: ", "Chala3");
+                }
+            }
+        }).addOnFailureListener(e -> {
+            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+            Log.d("address: ", "Chala4");
+
+        });
+    }
+
+    private void createGeoFireDestinationLocation(String key, LatLng destinationLatLng) {
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("TripDestinationLocation");
+        destinationGeoFire = new GeoFire(ref);
+        destinationGeoFire.setLocation(key, new GeoLocation(destinationLatLng.latitude, destinationLatLng.longitude), new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+
+            }
+        });
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
@@ -429,8 +601,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 long timeOffset = snapshot.getValue(Long.class);
 
-                Log.d("KEYYYYYYYYY", event.getKey());
-
                 firebaseFirestore.collection("Users").document(event.getKey())
                         .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                             @Override
@@ -580,7 +750,40 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                     Location location = locationResult.getLastLocation();
 
-                    makeDriverOnline(location);
+                    if (pickupGeoFire != null){
+                        pickupGeoQuery = pickupGeoFire.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), 0.05);
+
+                        pickupGeoQuery.addGeoQueryEventListener(pickupGeoQueryEventListner);
+                    }
+
+                    if (destinationGeoFire != null){
+                        destinationGeoQuery = destinationGeoFire.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), 0.05);
+
+                        destinationGeoQuery.addGeoQueryEventListener(destinationGeoQueryEventListner);
+                    }
+
+                    if (!isTripStart){
+                        makeDriverOnline(location);
+                    }
+                    if (tripNumberId != null){
+                        TripPlanModel tripPlanModel = new TripPlanModel();
+
+                        tripPlanModel.setCurrentLat(location.getLatitude());
+                        tripPlanModel.setCurrentLng(location.getLongitude());
+
+                        HashMap<String, Object> newLocation = new HashMap<>();
+                        newLocation.put("currentLat",location.getLatitude());
+                        newLocation.put("currentLng",location.getLongitude());
+
+                        FirebaseDatabase.getInstance().getReference("Trips")
+                                .child(tripNumberId)
+                                .updateChildren(newLocation)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(MainActivity.this, "Chala", Toast.LENGTH_SHORT).show();
+                                }).addOnFailureListener(e -> {
+                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        });
+                    }
                 }
             };
         }

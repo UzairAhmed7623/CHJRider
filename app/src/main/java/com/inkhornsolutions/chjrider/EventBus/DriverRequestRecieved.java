@@ -4,8 +4,17 @@ public class DriverRequestRecieved {
     private String key;
     private String pickupLocation, pickupLocationString;
     private String destinationLocation, destinationLocationString;
+    private String dropOffUserId;
 
     public DriverRequestRecieved() {
+    }
+
+    public String getDropOffUserId() {
+        return dropOffUserId;
+    }
+
+    public void setDropOffUserId(String dropOffUserId) {
+        this.dropOffUserId = dropOffUserId;
     }
 
     public String getKey() {
