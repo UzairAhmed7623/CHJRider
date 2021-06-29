@@ -224,7 +224,7 @@ public class UserUtils {
 
                                 Map<String, String> notificationdata = new HashMap<>();
                                 notificationdata.put("title", "DeclineAndRemoveTrip");
-                                notificationdata.put("body", "Your driver arrived!");
+                                notificationdata.put("body", "Your driver declined trip!");
                                 notificationdata.put("DriverKey", id);
 
                                 notificationdata.put("RiderKey", key);

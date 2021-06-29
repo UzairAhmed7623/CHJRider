@@ -2,11 +2,13 @@ package com.inkhornsolutions.chjrider;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -67,6 +69,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.inkhornsolutions.chjrider.Common.Common;
@@ -85,6 +88,7 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -102,7 +106,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mgoogleMap;
     private MaterialButton btnGoOnline, btnIgnoreJob, btnAcceptJob, btnCancelJob, btnCall, btnPickup, btnDropOff, btnCancelDropOffJob, btnDropOffCall;
     private TextView tvMoneyEarned, tvHoursSpentOnline, tvTotalDistanceCovered, tvTotalJobs;
-    private TextView tvPickUp, tvDropOff, tvTotalDistance, tvEstFare;
+    private TextView tvPickUp, tvDropOff, tvPickUpDistance, tvEstTime;
     private TextView tvPickupAddress, tvOrderRefNo, tvDistanceFromPickup, tvEstimatedFare, tvETA;
     private TextView tvDropOffAddress, tvDropOffOrderRefNo, tvDistanceFromDropOff, tvEstimatedFareDropOff;
     private ConstraintLayout yesterdayLayout, newOrderLayout, gotoPickupLayout, gotoDropOffLayout;
@@ -131,9 +135,45 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GeoQueryEventListener pickupGeoQueryEventListner = new GeoQueryEventListener() {
         @Override
         public void onKeyEntered(String key, GeoLocation location) {
-//            btnStartRide.setEnabled(true);
 
-            UserUtils.sendNotifyToRider(MainActivity.this, gotoDropOffLayout, key);
+            gotoDropOffLayout.setVisibility(View.VISIBLE);
+            tvDropOffAddress.setText(tvDropOff.getText().toString());
+            tvDropOffOrderRefNo.setText(driverRequestReceived.getOrderRefNumber());
+
+            LatLng pickupLatLng = new LatLng(Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[0]),
+                    Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[1]));
+            LatLng destinationLatLng = new LatLng(Double.parseDouble(driverRequestReceived.getDestinationLocation().split(",")[0]),
+                    Double.parseDouble(driverRequestReceived.getDestinationLocation().split(",")[1]));
+
+            GoogleDirection.withServerKey(DIRECTION_API_KEY)
+                    .from(pickupLatLng)
+                    .to(destinationLatLng)
+                    .execute(new DirectionCallback() {
+                        @Override
+                        public void onDirectionSuccess(@Nullable Direction direction) {
+                            Route route = direction.getRouteList().get(0);
+                            Leg leg = route.getLegList().get(0);
+                            Info distanceInfo = leg.getDistance();
+                            Info durationInfo = leg.getDuration();
+                            String distance = distanceInfo.getText();
+                            String duration = durationInfo.getText();
+
+                            tvDistanceFromDropOff.setText(distance);
+                            tvETA.setText(duration);
+                        }
+
+                        @Override
+                        public void onDirectionFailure(@NonNull Throwable t) {
+                            Log.d("address: ", "Chala2");
+
+                            Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+
+            tvEstimatedFareDropOff.setText(tvEstimatedFare.getText().toString());
+
+
+            UserUtils.sendNotifyToRider(MainActivity.this, gotoPickupLayout, key);
 
             if (pickupGeoQuery != null) {
                 if (pickupGeoFire != null){
@@ -146,22 +186,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void onKeyExited(String key) {
-//            btnStartRide.setEnabled(false);
         }
 
         @Override
         public void onKeyMoved(String key, GeoLocation location) {
-
         }
 
         @Override
         public void onGeoQueryReady() {
-
         }
 
         @Override
         public void onGeoQueryError(DatabaseError error) {
-
         }
     };
 
@@ -220,8 +256,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         btnAcceptJob = (MaterialButton) findViewById(R.id.btnAcceptJob);
         tvPickUp = (TextView) findViewById(R.id.tvPickUp);
         tvDropOff = (TextView) findViewById(R.id.tvDropOff);
-        tvTotalDistance = (TextView) findViewById(R.id.tvTotalDistance);
-        tvEstFare = (TextView) findViewById(R.id.tvEstFare);
+        tvPickUpDistance = (TextView) findViewById(R.id.tvPickUpDistance);
+        tvEstTime = (TextView) findViewById(R.id.tvEstTime);
         newOrderLayout = (ConstraintLayout) findViewById(R.id.newOrderLayout);
 
         //go to pickup layout
@@ -339,6 +375,33 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if (greyPolyline != null) greyPolyline.remove();
 
                 gotoPickupLayout.setVisibility(View.GONE);
+
+                if (driverRequestReceived != null) {
+                    LatLng pickupLatLng = new LatLng(
+                            Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[0]),
+                            Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[1]));
+
+                    mgoogleMap.addMarker(new MarkerOptions()
+                            .position(pickupLatLng)
+                            .title(driverRequestReceived.getPickupLocationString())
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+
+                    //draw path
+                    drawPathFromCurrentLocation(driverRequestReceived.getPickupLocation(), driverRequestReceived.getDestinationLocation());
+                }
+
+                gotoPickupLayout.setVisibility(View.GONE);
+            }
+        });
+
+        btnDropOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (blackPolyLine != null) blackPolyLine.remove();
+                if (greyPolyline != null) greyPolyline.remove();
+
+                gotoDropOffLayout.setVisibility(View.GONE);
+
                 if (driverRequestReceived != null) {
                     LatLng destinationLatLng = new LatLng(
                             Double.parseDouble(driverRequestReceived.getDestinationLocation().split(",")[0]),
@@ -347,10 +410,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     mgoogleMap.addMarker(new MarkerOptions()
                             .position(destinationLatLng)
                             .title(driverRequestReceived.getDestinationLocationString())
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
                     //draw path
-                    drawPathFromCurrentLocation(driverRequestReceived.getPickupLocation());
+                    drawPathFromCurrentLocation(driverRequestReceived.getDestinationLocation(), driverRequestReceived.getDestinationLocation());
                 }
 
                 gotoPickupLayout.setVisibility(View.GONE);
@@ -364,7 +427,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void drawPathFromCurrentLocation(String PickupLocation) {
+    private void drawPathFromCurrentLocation(String PickupLocation, String destinationLocation) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -416,7 +479,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                             .include(pickUpLatLng)
                                             .build();
 
-                                    createGeoFireDestinationLocation(driverRequestReceived.getKey(), pickUpLatLng);
+                                    LatLng DestinationLatLng = new LatLng(
+                                            Double.parseDouble(destinationLocation.split(",")[0]),
+                                            Double.parseDouble(destinationLocation.split(",")[1]));
+
+                                    createGeoFireDestinationLocation(driverRequestReceived.getKey(), DestinationLatLng);
 
                                     mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
                                     mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
@@ -529,34 +596,38 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                     String distance = distanceInfo.getText();
                                     String duration = durationInfo.getText();
 
+                                    LatLng pickupLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
+                                            Double.parseDouble(event.getPickupLocation().split(",")[1]));
+
+                                    LatLng destinationLatLng = new LatLng(Double.parseDouble(event.getDestinationLocation().split(",")[0]),
+                                            Double.parseDouble(event.getDestinationLocation().split(",")[1]));
+
                                     Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
                                     List<Address> pickUp;
                                     List<Address> dropOff;
                                     try {
-                                        pickUp = geocoder.getFromLocation(originLatLng.latitude, originLatLng.longitude, 1);
+                                        pickUp = geocoder.getFromLocation(pickupLatLng.latitude, pickupLatLng.longitude, 1);
                                         String pickUpString = pickUp.get(0).getAddressLine(0);
                                         tvPickUp.setText(pickUpString);
 
-                                        dropOff = geocoder.getFromLocation(originLatLng.latitude, originLatLng.longitude, 1);
+                                        dropOff = geocoder.getFromLocation(destinationLatLng.latitude, destinationLatLng.longitude, 1);
                                         String dropOffString = dropOff.get(0).getAddressLine(0);
                                         tvDropOff.setText(dropOffString);
-}
+                                    }
                                     catch (Exception e){
                                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                     }
 
-                                    tvTotalDistance.setText(distance);
+                                    tvPickUpDistance.setText(distance);
                                     //Fare dalna ha abi
-                                    tvEstFare.setText(duration);
-
-
+                                    tvEstTime.setText(duration);
 
                                     mgoogleMap.addMarker(new MarkerOptions()
                                             .position(destinationLatLng)
                                             .icon(BitmapDescriptorFactory.defaultMarker())
                                             .title("Pickup Location"));
 
-                                    createGeoFirePickupLocation(event.getKey(), destinationLatLng);
+                                    createGeoFirePickupLocation(event.getKey(), pickupLatLng);
 
                                     mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
                                     mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
@@ -643,9 +714,66 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                 .setValue(tripPlanModel)
                                                                 .addOnSuccessListener(aVoid -> {
 
-//                                                                    tvRiderName.setText(riderModel.getFirstName());
-//                                                                    tvStartRiderEstimateTime.setText(duration);
-//                                                                    tvStartRiderEstimateDistance.setText(distance);
+                                                                    LatLng pickupLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
+                                                                            Double.parseDouble(event.getPickupLocation().split(",")[1]));
+
+                                                                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+                                                                    List<Address> pickUp;
+                                                                    try {
+                                                                        pickUp = geocoder.getFromLocation(pickupLatLng.latitude, pickupLatLng.longitude, 1);
+                                                                        String pickUpString = pickUp.get(0).getAddressLine(0);
+                                                                        tvPickupAddress.setText(tvPickUp.getText().toString());
+                                                                    }
+                                                                    catch (Exception e){
+                                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                                    }
+                                                                    tvOrderRefNo.setText(event.getOrderRefNumber());
+                                                                    tvDistanceFromPickup.setText(distance);
+
+                                                                    firebaseFirestore.collection("Users").document(event.getDropOffUserId())
+                                                                            .collection("Cart")
+                                                                            .whereEqualTo("ID", event.getOrderRefNumber())
+                                                                            .get()
+                                                                            .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
+                                                                            if (task.isSuccessful()){
+                                                                                for (DocumentSnapshot snapshots : task.getResult()){
+                                                                                    if (snapshot.exists()){
+                                                                                        String orderTotal = snapshots.getString("total");
+                                                                                        tvEstimatedFare.setText(orderTotal);
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    })
+                                                                            .addOnFailureListener(e -> {
+                                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                                    });
+
+                                                                    tvETA.setText(duration);
+
+                                                                    btnCall.setOnClickListener(new View.OnClickListener() {
+                                                                        @Override
+                                                                        public void onClick(View v) {
+                                                                            Dexter.withContext(getApplicationContext()).withPermission(Manifest.permission.CALL_PHONE).withListener(new PermissionListener() {
+                                                                                @Override
+                                                                                public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                                                                                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + riderModel.getPhoneNumber()));
+                                                                                    startActivity(intent);
+                                                                                }
+                                                                                @Override
+                                                                                public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                                                                                    Toast.makeText(MainActivity.this, "Please grant permission!", Toast.LENGTH_SHORT).show();
+                                                                                }
+
+                                                                                @Override
+                                                                                public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                                                                                    permissionToken.continuePermissionRequest();
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    });
 
                                                                     setOfflineModeForDriver(event, duration, distance);
 
@@ -690,11 +818,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         isTripStart = true;
     }
 
-    private void createGeoFirePickupLocation(String key, LatLng destinationLatLng) {
+    private void createGeoFirePickupLocation(String key, LatLng pickupLatLng) {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("TripPickupLocation");
 
         pickupGeoFire = new GeoFire(ref);
-        pickupGeoFire.setLocation(key, new GeoLocation(destinationLatLng.latitude, destinationLatLng.longitude),
+        pickupGeoFire.setLocation(key, new GeoLocation(pickupLatLng.latitude, pickupLatLng.longitude),
                 new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {

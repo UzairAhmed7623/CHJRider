@@ -66,13 +66,13 @@
                         android:includeFontPadding="false"
                         android:lines="2"
                         android:maxLines="2"
-                        android:text="karachi naseeb biryani"
+                        android:text=""
                         android:textColor="@color/myColor"
                         android:textFontWeight="500"
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tvTotalDistancePlace"
+                        android:id="@+id/tvPickupDistancePlace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/tvPickUp"
@@ -82,22 +82,22 @@
                         android:includeFontPadding="false"
                         android:letterSpacing="0.05"
                         android:padding="10dp"
-                        android:text="Total Distance"
+                        android:text="Pickup Distance"
                         android:textColor="@color/black"
                         android:textFontWeight="500"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tvTotalDistance"
+                        android:id="@+id/tvPickUpDistance"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/tvTotalDistancePlace"
+                        android:layout_below="@+id/tvPickupDistancePlace"
                         android:layout_marginStart="10dp"
                         android:layout_marginBottom="10dp"
                         android:fontFamily="@font/montserra_regular_bold"
                         android:gravity="start"
                         android:letterSpacing="0.05"
-                        android:text="102km"
+                        android:text="0.0 km"
                         android:textColor="@color/myColor"
                         android:textFontWeight="500"
                         android:textSize="16sp" />
@@ -133,13 +133,13 @@
                         android:gravity="start"
                         android:lines="2"
                         android:maxLines="2"
-                        android:text="744, 7th floor Madina Tower cenel Lahore"
+                        android:text=""
                         android:textColor="@color/myColor"
                         android:textFontWeight="500"
                         android:textSize="14sp" />
 
                     <TextView
-                        android:id="@+id/tvEstFarePlace"
+                        android:id="@+id/tvEstTimePlace"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/tvDropOff"
@@ -149,22 +149,22 @@
                         android:includeFontPadding="false"
                         android:letterSpacing="0.05"
                         android:padding="10dp"
-                        android:text="Est. fare"
+                        android:text="Est. Time"
                         android:textColor="@color/black"
                         android:textFontWeight="500"
                         android:textSize="16sp" />
 
                     <TextView
-                        android:id="@+id/tvEstFare"
+                        android:id="@+id/tvEstTime"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_below="@+id/tvEstFarePlace"
+                        android:layout_below="@+id/tvEstTimePlace"
                         android:layout_marginStart="10dp"
                         android:layout_marginBottom="10dp"
                         android:fontFamily="@font/montserra_regular_bold"
                         android:gravity="start"
                         android:letterSpacing="0.05"
-                        android:text="Rs. 250.00"
+                        android:text="0 Min"
                         android:textColor="@color/myColor"
                         android:textFontWeight="500"
                         android:textSize="16sp" />

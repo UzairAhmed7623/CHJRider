@@ -5,8 +5,17 @@ public class DriverRequestRecieved {
     private String pickupLocation, pickupLocationString;
     private String destinationLocation, destinationLocationString;
     private String dropOffUserId;
+    private String orderRefNumber;
 
     public DriverRequestRecieved() {
+    }
+
+    public String getOrderRefNumber() {
+        return orderRefNumber;
+    }
+
+    public void setOrderRefNumber(String orderRefNumber) {
+        this.orderRefNumber = orderRefNumber;
     }
 
     public String getDropOffUserId() {

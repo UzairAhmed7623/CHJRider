@@ -42,6 +42,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
             String DestinationLocation = remoteMessage.getData().get("DestinationLocation");
             String DestinationLocationString = remoteMessage.getData().get("DestinationLocationString");
             String dropOffUserId = remoteMessage.getData().get("dropOffUserId");
+            String orderRefNumber = remoteMessage.getData().get("orderRefNumber");
 
             Log.d("TAG", "Title: "+title+"riderKey: "+riderKey+"PickupLocation: "+PickupLocation
                     +"PickupLocationString: "+PickupLocationString+"DestinationLocation: "+DestinationLocation
@@ -57,6 +58,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 driverRequestRecieved.setDestinationLocation(DestinationLocation);
                 driverRequestRecieved.setDestinationLocationString(DestinationLocationString);
                 driverRequestRecieved.setDropOffUserId(dropOffUserId);
+                driverRequestRecieved.setOrderRefNumber(orderRefNumber);
 
                 EventBus.getDefault().postSticky(driverRequestRecieved);
                 Log.d("TAG", "Chala");
