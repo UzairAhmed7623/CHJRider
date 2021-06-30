@@ -16,6 +16,8 @@
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent" />
 
+    <include layout="@layout/toolbar_pickup_layout"/>
+
     <include layout="@layout/yesterday_history" />
 
     <include layout="@layout/new_order" />

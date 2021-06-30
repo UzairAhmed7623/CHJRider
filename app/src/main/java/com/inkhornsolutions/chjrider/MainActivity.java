@@ -124,7 +124,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private FirebaseFirestore firebaseFirestore;
     private DatabaseReference driverLocationRef,currentUserRef;
     private String id;
-    private String tripNumberId;
+    private String tripNumberId = null;
     private boolean isTripStart = false;
 
     private DriverRequestRecieved driverRequestReceived;
@@ -172,8 +172,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
             tvEstimatedFareDropOff.setText(tvEstimatedFare.getText().toString());
 
-
-            UserUtils.sendNotifyToRider(MainActivity.this, gotoPickupLayout, key);
+            UserUtils.sendNotifyToRider(MainActivity.this, gotoPickupLayout, key, tripNumberId);
 
             if (pickupGeoQuery != null) {
                 if (pickupGeoFire != null){
@@ -706,6 +705,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                         tripPlanModel.setDurationPickup(duration);
                                                         tripPlanModel.setCurrentLat(location.getLatitude());
                                                         tripPlanModel.setCurrentLng(location.getLongitude());
+                                                        tripPlanModel.setOrderId(event.getOrderRefNumber());
 
                                                         tripNumberId = Common.createUniqueTripIdNumber(timeOffset);
 
@@ -714,21 +714,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                 .setValue(tripPlanModel)
                                                                 .addOnSuccessListener(aVoid -> {
 
-                                                                    LatLng pickupLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
-                                                                            Double.parseDouble(event.getPickupLocation().split(",")[1]));
-
-                                                                    Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
-                                                                    List<Address> pickUp;
-                                                                    try {
-                                                                        pickUp = geocoder.getFromLocation(pickupLatLng.latitude, pickupLatLng.longitude, 1);
-                                                                        String pickUpString = pickUp.get(0).getAddressLine(0);
-                                                                        tvPickupAddress.setText(tvPickUp.getText().toString());
-                                                                    }
-                                                                    catch (Exception e){
-                                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                                                    }
+                                                                    tvPickupAddress.setText(tvPickUp.getText().toString());
                                                                     tvOrderRefNo.setText(event.getOrderRefNumber());
                                                                     tvDistanceFromPickup.setText(distance);
+                                                                    tvETA.setText(duration);
 
                                                                     firebaseFirestore.collection("Users").document(event.getDropOffUserId())
                                                                             .collection("Cart")
@@ -750,8 +739,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                             .addOnFailureListener(e -> {
                                                                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                                                     });
-
-                                                                    tvETA.setText(duration);
 
                                                                     btnCall.setOnClickListener(new View.OnClickListener() {
                                                                         @Override

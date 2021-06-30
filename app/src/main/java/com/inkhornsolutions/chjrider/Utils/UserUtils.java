@@ -122,7 +122,6 @@ public class UserUtils {
                     notificationdata.put("title", "Accept");
                     notificationdata.put("body", "This message represent action driver accept");
                     notificationdata.put("DriverKey", id);
-
                     notificationdata.put("TripKey", tripNumberId);
 
                     FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
@@ -154,7 +153,7 @@ public class UserUtils {
         });
     }
 
-    public static void sendNotifyToRider(Context context, View view, String key) {
+    public static void sendNotifyToRider(Context context, View view, String key, String tripNumberId) {
         CompositeDisposable compositeDisposable = new CompositeDisposable();
         IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
 
@@ -170,8 +169,7 @@ public class UserUtils {
                     notificationdata.put("title", "DriverArrived");
                     notificationdata.put("body", "Your driver arrived!");
                     notificationdata.put("DriverKey", id);
-
-                    notificationdata.put("RiderKey", key);
+                    notificationdata.put("TripKey", tripNumberId);
 
                     FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
                     compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
