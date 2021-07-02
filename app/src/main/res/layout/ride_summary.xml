@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rideSummaryLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/tvRideSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/myColorSecond"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:gravity="center_horizontal|bottom"
+        android:letterSpacing="0.05"
+        android:padding="20dp"
+        android:text="Ride Summary"
+        android:textColor="@color/white"
+        android:textFontWeight="600"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.999">
+
+        <RelativeLayout
+            android:id="@+id/layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:id="@+id/layout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tvPickupPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="Pick up"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvPickupAddressRideSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxWidth="200dp"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="karachi naseeb biryani"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view5"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvPickupAddressRideSummary"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvDropOffPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view5"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center_vertical"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="Drop off"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvDropOffAddressRideSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view5"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:lines="2"
+                    android:maxWidth="200dp"
+                    android:maxLines="2"
+                    android:padding="10dp"
+                    android:text="karachi naseeb biryani"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvDropOffAddressRideSummary"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvOrderRefNoPlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view1"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start|center_vertical"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Order Ref.No"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvOrderRefNoRideSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view1"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end|center_vertical"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="544215646123"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvOrderRefNoRideSummary"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvDistancePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view2"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Distance covered"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvDistanceRideSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view2"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="16km"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/view3"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tvDistanceRideSummary"
+                    android:background="@color/grey_40" />
+
+                <TextView
+                    android:id="@+id/tvFarePlace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view3"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Total Fare"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvEstimatedFareRideSummary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/view3"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:gravity="end"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:padding="10dp"
+                    android:text="Rs.250.00"
+                    android:textColor="@color/myColorSecond"
+                    android:textFontWeight="500"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <View
+                android:id="@+id/view6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@+id/layout2"
+                android:background="@color/grey_40" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/view6"
+                android:weightSum="2">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnStopRiding"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/white"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:includeFontPadding="false"
+                    android:lines="1"
+                    android:text="Stop Riding"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    app:cornerRadius="50dp"
+                    app:rippleColor="@color/black" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnContinueRide"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_below="@+id/view6"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/myColor"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:includeFontPadding="false"
+                    android:lines="1"
+                    android:text="Continue Riding"
+                    android:textColor="@color/white"
+                    android:textSize="12sp"
+                    app:cornerRadius="50dp"
+                    app:rippleColor="@color/black" />
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

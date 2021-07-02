@@ -2,6 +2,7 @@ package com.inkhornsolutions.chjrider;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,7 +15,10 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
+import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import com.akexorcist.googledirection.DirectionCallback;
@@ -31,6 +36,7 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
+import com.evernote.android.state.StateSaver;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -109,7 +115,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private TextView tvPickUp, tvDropOff, tvPickUpDistance, tvEstTime;
     private TextView tvPickupAddress, tvOrderRefNo, tvDistanceFromPickup, tvEstimatedFare, tvETA;
     private TextView tvDropOffAddress, tvDropOffOrderRefNo, tvDistanceFromDropOff, tvEstimatedFareDropOff;
-    private ConstraintLayout yesterdayLayout, newOrderLayout, gotoPickupLayout, gotoDropOffLayout;
+    private ImageButton btnCallToolbar;
+    private TextView pickupPlace, dropoffPlace, tvAddress, tvArrivalTimeToolbar;
+    private TextView tvPickupAddressRideSummary, tvDropOffAddressRideSummary, tvOrderRefNoRideSummary, tvDistanceRideSummary, tvEstimatedFareRideSummary;
+    private MaterialButton btnContinueRide, btnStopRiding;
+    private ConstraintLayout yesterdayLayout, newOrderLayout, gotoPickupLayout, gotoDropOffLayout, toolbar_pickup_and_dropoff_layout, rideSummaryLayout;
 
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
@@ -122,12 +132,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
-    private DatabaseReference driverLocationRef,currentUserRef;
+    private DatabaseReference driverLocationRef, currentUserRef;
     private String id;
-    private String tripNumberId = null;
+    private String tripNumberId = "";
     private boolean isTripStart = false;
 
     private DriverRequestRecieved driverRequestReceived;
+    private TripPlanModel tripPlanModel;
     private Polyline blackPolyLine, greyPolyline;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private List<LatLng> polylineList;
@@ -136,6 +147,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onKeyEntered(String key, GeoLocation location) {
 
+            toolbar_pickup_and_dropoff_layout.setVisibility(View.GONE);
             gotoDropOffLayout.setVisibility(View.VISIBLE);
             tvDropOffAddress.setText(tvDropOff.getText().toString());
             tvDropOffOrderRefNo.setText(driverRequestReceived.getOrderRefNumber());
@@ -175,7 +187,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             UserUtils.sendNotifyToRider(MainActivity.this, gotoPickupLayout, key, tripNumberId);
 
             if (pickupGeoQuery != null) {
-                if (pickupGeoFire != null){
+                if (pickupGeoFire != null) {
                     pickupGeoFire.removeLocation(key);
                 }
                 pickupGeoFire = null;
@@ -203,7 +215,81 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private GeoQueryEventListener destinationGeoQueryEventListner = new GeoQueryEventListener() {
         @Override
         public void onKeyEntered(String key, GeoLocation location) {
-//            btnCompleteRide.setEnabled(true);
+
+            toolbar_pickup_and_dropoff_layout.setVisibility(View.GONE);
+            rideSummaryLayout.setVisibility(View.VISIBLE);
+
+            UserUtils.sendAcceptRequestToRider(rideSummaryLayout, MainActivity.this, driverRequestReceived.getKey(), tripNumberId);
+
+            LatLng pickUpLatLng = new LatLng(
+                    Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
+                    Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
+
+            LatLng dropOffLatLng = new LatLng(
+                    Double.parseDouble(tripPlanModel.getDestination().split(",")[0]),
+                    Double.parseDouble(tripPlanModel.getDestination().split(",")[1]));
+
+            Geocoder geocoder = new Geocoder(MainActivity.this, Locale.getDefault());
+            List<Address> pickUp;
+            List<Address> dropOff;
+            try {
+                pickUp = geocoder.getFromLocation(pickUpLatLng.latitude, pickUpLatLng.longitude, 1);
+                String pickUpString = pickUp.get(0).getAddressLine(0);
+                tvPickupAddressRideSummary.setText(pickUpString);
+
+                dropOff = geocoder.getFromLocation(dropOffLatLng.latitude, dropOffLatLng.longitude, 1);
+                String dropOffString = dropOff.get(0).getAddressLine(0);
+                tvDropOffAddressRideSummary.setText(dropOffString);
+            }
+            catch (Exception e){
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+
+            tvOrderRefNoRideSummary.setText(driverRequestReceived.getOrderRefNumber());
+            FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    if (snapshot.exists()){
+                        String distancePickup = snapshot.child("distancePickup").getValue().toString().replace("km","");
+                        String dropOffDistance = snapshot.child("dropOffDistance").getValue().toString().replace("km","");;
+
+                        Log.d("address1" ,""+distancePickup+"");
+                        Log.d("address1" ,""+dropOffDistance+"");
+
+
+                        double totalDistance = Double.parseDouble(distancePickup) + Double.parseDouble(dropOffDistance);
+                        tvDistanceRideSummary.setText("" + totalDistance + " km");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+
+            tvEstimatedFareRideSummary.setText(tvEstimatedFareDropOff.getText().toString());
+
+            HashMap<String, Object> tripDone = new HashMap<>();
+            tripDone.put("done", true);
+            FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripDone)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull @NotNull Exception e) {
+
+                        }
+                    });
+
+            tripNumberId = "";
+            isTripStart = false;
+
+
             if (destinationGeoQuery != null) {
                 destinationGeoFire.removeLocation(key);
                 destinationGeoFire = null;
@@ -232,16 +318,23 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         }
     };
 
-
+    @SuppressLint("NonMatchingStateSaverCalls")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        StateSaver.restoreInstanceState(this, savedInstanceState);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 //        id = firebaseAuth.getCurrentUser().getUid();
         id = "WhaMIBVZyxUWtN9EPrx16d9Dzoo2";
+
+        Window window = this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.myColorSecond));
+
         //yesterday layout
         btnGoOnline = (MaterialButton) findViewById(R.id.btnGoOnline);
         tvMoneyEarned = (TextView) findViewById(R.id.tvMoneyEarned);
@@ -281,6 +374,24 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         tvETA = (TextView) findViewById(R.id.tvETA);
         gotoDropOffLayout = (ConstraintLayout) findViewById(R.id.gotoDropOffLayout);
 
+        //toolbar_pickup_layout
+        toolbar_pickup_and_dropoff_layout = (ConstraintLayout) findViewById(R.id.toolbar_pickup_and_dropoff_layout);
+        pickupPlace = (TextView) findViewById(R.id.pickupPlace);
+        dropoffPlace = (TextView) findViewById(R.id.dropoffPlace);
+        tvAddress = (TextView) findViewById(R.id.tvAddress);
+        tvArrivalTimeToolbar = (TextView) findViewById(R.id.tvArrivalTimeToolbar);
+        btnCallToolbar = (ImageButton) findViewById(R.id.btnCallToolbar);
+
+        //Ride Summary layout
+        rideSummaryLayout = (ConstraintLayout) findViewById(R.id.rideSummaryLayout);
+        tvPickupAddressRideSummary = (TextView) findViewById(R.id.tvPickupAddressRideSummary);
+        tvDropOffAddressRideSummary = (TextView) findViewById(R.id.tvDropOffAddressRideSummary);
+        tvOrderRefNoRideSummary = (TextView) findViewById(R.id.tvOrderRefNoRideSummary);
+        tvDistanceRideSummary = (TextView) findViewById(R.id.tvDistanceRideSummary);
+        tvEstimatedFareRideSummary = (TextView) findViewById(R.id.tvEstimatedFareRideSummary);
+        btnContinueRide = (MaterialButton) findViewById(R.id.btnContinueRide);
+        btnStopRiding = (MaterialButton) findViewById(R.id.btnStopRiding);
+
         btnGoOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -312,15 +423,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        btnAcceptJob.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                yesterdayLayout.setVisibility(View.GONE);
-                newOrderLayout.setVisibility(View.GONE);
-                gotoPickupLayout.setVisibility(View.VISIBLE);
-            }
-        });
-
         btnCancelJob.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -335,33 +437,61 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
 
                 if (driverRequestReceived != null) {
-                            if (TextUtils.isEmpty(tripNumberId)) {
+                    if (TextUtils.isEmpty(tripNumberId)) {
 
-                                newOrderLayout.setVisibility(View.GONE);
-                                mgoogleMap.clear();
-                                UserUtils.sendDeclineRequest(newOrderLayout, MainActivity.this, driverRequestReceived.getKey());
-                                driverRequestReceived = null;
+                        newOrderLayout.setVisibility(View.GONE);
+                        mgoogleMap.clear();
+                        UserUtils.sendDeclineRequest(newOrderLayout, MainActivity.this, driverRequestReceived.getKey());
+                        driverRequestReceived = null;
+                        HashMap<String, Object> tripCancel = new HashMap<>();
+                        tripCancel.put("cancel", true);
+                        FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripCancel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull @NotNull Task<Void> task) {
 
                             }
-                            else {
-                                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                                    return;
-                                }
-                                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull @NotNull Exception e) {
 
-                                    newOrderLayout.setVisibility(View.GONE);
-                                    mgoogleMap.clear();
-                                    UserUtils.sendDeclineAndRemoveRiderRequest(newOrderLayout, MainActivity.this,
-                                            driverRequestReceived.getKey(), tripNumberId);
+                                    }
+                                });
 
-                                    tripNumberId = "";
-                                    driverRequestReceived = null;
-
-                                    makeDriverOnline(location);
-
-                                }).addOnFailureListener(e -> Snackbar.make(newOrderLayout, e.getMessage(), Snackbar.LENGTH_LONG).show());
-                            }
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
                         }
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+
+                            HashMap<String, Object> tripCancel = new HashMap<>();
+                            tripCancel.put("cancel", true);
+                            FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripCancel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                }
+                            })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @NotNull Exception e) {
+
+                                        }
+                                    });
+
+                            newOrderLayout.setVisibility(View.GONE);
+                            mgoogleMap.clear();
+                            UserUtils.sendDeclineAndRemoveRiderRequest(newOrderLayout, MainActivity.this,
+                                    driverRequestReceived.getKey(), tripNumberId);
+
+                            tripNumberId = "";
+                            driverRequestReceived = null;
+
+                            makeDriverOnline(location);
+
+                        }).addOnFailureListener(e -> Snackbar.make(newOrderLayout, e.getMessage(), Snackbar.LENGTH_LONG).show());
+                    }
+                }
 
 
             }
@@ -374,6 +504,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if (greyPolyline != null) greyPolyline.remove();
 
                 gotoPickupLayout.setVisibility(View.GONE);
+                toolbar_pickup_and_dropoff_layout.setVisibility(View.VISIBLE);
+                pickupPlace.setVisibility(View.VISIBLE);
+                dropoffPlace.setVisibility(View.GONE);
 
                 if (driverRequestReceived != null) {
                     LatLng pickupLatLng = new LatLng(
@@ -400,6 +533,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 if (greyPolyline != null) greyPolyline.remove();
 
                 gotoDropOffLayout.setVisibility(View.GONE);
+                toolbar_pickup_and_dropoff_layout.setVisibility(View.VISIBLE);
+                dropoffPlace.setVisibility(View.VISIBLE);
+                pickupPlace.setVisibility(View.GONE);
 
                 if (driverRequestReceived != null) {
                     LatLng destinationLatLng = new LatLng(
@@ -416,6 +552,39 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 gotoPickupLayout.setVisibility(View.GONE);
+            }
+        });
+
+        btnContinueRide.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rideSummaryLayout.setVisibility(View.GONE);
+                yesterdayLayout.setVisibility(View.GONE);
+
+                mgoogleMap.clear();
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            makeDriverOnline(location);
+                        }
+                    }
+                });
+            }
+        });
+
+        btnStopRiding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rideSummaryLayout.setVisibility(View.GONE);
+                yesterdayLayout.setVisibility(View.VISIBLE);
+                mgoogleMap.clear();
+                if (currentUserRef != null){
+                    currentUserRef.removeValue();
+                }
             }
         });
 
@@ -452,6 +621,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 public void onDirectionSuccess(@Nullable Direction direction) {
                                     Route route = direction.getRouteList().get(0);
                                     Leg leg = route.getLegList().get(0);
+
+                                    String time = leg.getDuration().getText();
+                                    String address = leg.getEndAddress();
+                                    tvArrivalTimeToolbar.setText(time);
+                                    tvAddress.setText(address);
 
                                     polylineList = leg.getDirectionPoint();
 
@@ -532,16 +706,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 try {
 
                     LatLng originLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    LatLng destinationLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
+
+                    LatLng pickUpLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
                             Double.parseDouble(event.getPickupLocation().split(",")[1]));
 
+                    LatLng dropOffLatLng = new LatLng(Double.parseDouble(event.getDestinationLocation().split(",")[0]),
+                            Double.parseDouble(event.getDestinationLocation().split(",")[1]));
                     Log.d("address: ", "Chala1");
 
-                    Log.d("address: ", "" + destinationLatLng);
+                    Log.d("address: ", "" + pickUpLatLng);
 
                     GoogleDirection.withServerKey(DIRECTION_API_KEY)
                             .from(originLatLng)
-                            .to(destinationLatLng)
+                            .to(pickUpLatLng)
                             .execute(new DirectionCallback() {
                                 @Override
                                 public void onDirectionSuccess(@Nullable Direction direction) {
@@ -585,15 +762,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     LatLngBounds latLngBounds = new LatLngBounds.Builder()
                                             .include(originLatLng)
-                                            .include(destinationLatLng)
+                                            .include(pickUpLatLng)
                                             .build();
 
                                     //Add car icon for origin
 
                                     Info distanceInfo = leg.getDistance();
                                     Info durationInfo = leg.getDuration();
-                                    String distance = distanceInfo.getText();
-                                    String duration = durationInfo.getText();
+                                    String pickupDistance = distanceInfo.getText();
+                                    String pickupDuration = durationInfo.getText();
 
                                     LatLng pickupLatLng = new LatLng(Double.parseDouble(event.getPickupLocation().split(",")[0]),
                                             Double.parseDouble(event.getPickupLocation().split(",")[1]));
@@ -617,9 +794,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                     }
 
-                                    tvPickUpDistance.setText(distance);
+                                    tvPickUpDistance.setText(pickupDistance);
                                     //Fare dalna ha abi
-                                    tvEstTime.setText(duration);
+                                    tvEstTime.setText(pickupDuration);
 
                                     mgoogleMap.addMarker(new MarkerOptions()
                                             .position(destinationLatLng)
@@ -635,35 +812,56 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                                     //Timer lagana ha.
 
-                                    btnAcceptJob.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View v) {
-                                            createTripPlan(event, duration, distance);
-                                        }
-                                    });
+                                    GoogleDirection.withServerKey(DIRECTION_API_KEY)
+                                            .from(pickUpLatLng)
+                                            .to(dropOffLatLng)
+                                            .execute(new DirectionCallback() {
+                                                @Override
+                                                public void onDirectionSuccess(@Nullable @org.jetbrains.annotations.Nullable Direction direction) {
+                                                    Route route = direction.getRouteList().get(0);
+                                                    Leg leg = route.getLegList().get(0);
+
+                                                    Info distanceInfo = leg.getDistance();
+                                                    Info durationInfo = leg.getDuration();
+                                                    String dropOffDistance = distanceInfo.getText();
+                                                    String dropOffDuration = durationInfo.getText();
+
+                                                    btnAcceptJob.setOnClickListener(new View.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(View v) {
+                                                            yesterdayLayout.setVisibility(View.GONE);
+                                                            newOrderLayout.setVisibility(View.GONE);
+                                                            gotoPickupLayout.setVisibility(View.VISIBLE);
+                                                            createTripPlan(event, pickupDuration, pickupDistance, dropOffDistance, dropOffDuration);
+                                                        }
+                                                    });
+                                                }
+
+                                                @Override
+                                                public void onDirectionFailure(@NonNull @NotNull Throwable t) {
+                                                    Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                }
+                                            });
+
+
                                 }
                                 @Override
                                 public void onDirectionFailure(@NonNull Throwable t) {
-                                    Log.d("address: ", "Chala2");
 
                                     Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
                                 }
                             });
                 } catch (Exception e) {
                     Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                    Log.d("address: ", "Chala3");
-
                 }
 
             }
         }).addOnFailureListener(e -> {
             Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
-            Log.d("address: ", "Chala4");
-
         });
     }
 
-    private void createTripPlan(DriverRequestRecieved event, String duration, String distance) {
+    private void createTripPlan(DriverRequestRecieved event, String pickupDuration, String pickupDistance, String dropOffDistance, String dropOffDuration) {
 //        setProcessLayout(true);
 
         FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -684,7 +882,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                     fusedLocationProviderClient.getLastLocation()
                                             .addOnSuccessListener(location -> {
 
-                                                TripPlanModel tripPlanModel = new TripPlanModel();
+                                                tripPlanModel = new TripPlanModel();
                                                 tripPlanModel.setDriver(id);
                                                 tripPlanModel.setRider(event.getKey());
 
@@ -701,11 +899,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                         tripPlanModel.setOriginString(event.getPickupLocationString());
                                                         tripPlanModel.setDestination(event.getDestinationLocation());
                                                         tripPlanModel.setDestinationString(event.getDestinationLocationString());
-                                                        tripPlanModel.setDistancePickup(distance);
-                                                        tripPlanModel.setDurationPickup(duration);
+                                                        tripPlanModel.setDistancePickup(pickupDistance);
+                                                        tripPlanModel.setDurationPickup(pickupDuration);
                                                         tripPlanModel.setCurrentLat(location.getLatitude());
                                                         tripPlanModel.setCurrentLng(location.getLongitude());
                                                         tripPlanModel.setOrderId(event.getOrderRefNumber());
+                                                        tripPlanModel.setDropOffDistance(dropOffDistance);
+                                                        tripPlanModel.setDropOffDuration(dropOffDuration);
+
 
                                                         tripNumberId = Common.createUniqueTripIdNumber(timeOffset);
 
@@ -716,8 +917,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                                                                     tvPickupAddress.setText(tvPickUp.getText().toString());
                                                                     tvOrderRefNo.setText(event.getOrderRefNumber());
-                                                                    tvDistanceFromPickup.setText(distance);
-                                                                    tvETA.setText(duration);
+                                                                    tvDistanceFromPickup.setText(pickupDistance);
+                                                                    tvETA.setText(pickupDuration);
 
                                                                     firebaseFirestore.collection("Users").document(event.getDropOffUserId())
                                                                             .collection("Cart")
@@ -762,7 +963,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                         }
                                                                     });
 
-                                                                    setOfflineModeForDriver(event, duration, distance);
+                                                                    setOfflineModeForDriver(event);
 
                                                                 }).addOnFailureListener(e -> {
                                                             Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
@@ -791,7 +992,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void setOfflineModeForDriver(DriverRequestRecieved event, String duration, String distance) {
+    private void setOfflineModeForDriver(DriverRequestRecieved event) {
 
         UserUtils.sendAcceptRequestToRider(findViewById(android.R.id.content), this, event.getKey(), tripNumberId);
 
@@ -880,7 +1081,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     if (!isTripStart){
                         makeDriverOnline(location);
                     }
-                    if (tripNumberId != null){
+                    if (!tripNumberId.equals("")){
                         TripPlanModel tripPlanModel = new TripPlanModel();
 
                         tripPlanModel.setCurrentLat(location.getLatitude());
@@ -894,7 +1095,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 .child(tripNumberId)
                                 .updateChildren(newLocation)
                                 .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(MainActivity.this, "Chala", Toast.LENGTH_SHORT).show();
+
                                 }).addOnFailureListener(e -> {
                             Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                         });

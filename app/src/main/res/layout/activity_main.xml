@@ -16,7 +16,7 @@
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent" />
 
-    <include layout="@layout/toolbar_pickup_layout"/>
+    <include layout="@layout/toolbar_pickup_and_dropoff_layout"/>
 
     <include layout="@layout/yesterday_history" />
 
@@ -25,5 +25,7 @@
     <include layout="@layout/go_to_pickup" />
 
     <include layout="@layout/go_to_dropoff" />
+
+    <include layout="@layout/ride_summary"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

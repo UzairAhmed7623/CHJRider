@@ -67,4 +67,9 @@ dependencies {
 
     implementation 'org.greenrobot:eventbus:3.2.0'
 
+
+    implementation 'com.evernote:android-state:1.4.1'
+    // Java only project
+    annotationProcessor 'com.evernote:android-state-processor:1.4.1'
+
 }
