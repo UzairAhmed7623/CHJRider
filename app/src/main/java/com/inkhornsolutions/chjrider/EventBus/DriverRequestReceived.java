@@ -1,21 +1,21 @@
 package com.inkhornsolutions.chjrider.EventBus;
 
-public class DriverRequestRecieved {
+public class DriverRequestReceived {
     private String key;
     private String pickupLocation, pickupLocationString;
     private String destinationLocation, destinationLocationString;
     private String dropOffUserId;
-    private String orderRefNumber;
+    private String orderId;
 
-    public DriverRequestRecieved() {
+    public DriverRequestReceived() {
     }
 
-    public String getOrderRefNumber() {
-        return orderRefNumber;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setOrderRefNumber(String orderRefNumber) {
-        this.orderRefNumber = orderRefNumber;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     public String getDropOffUserId() {

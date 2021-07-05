@@ -3,7 +3,9 @@ package com.inkhornsolutions.chjrider;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -36,7 +38,6 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
-import com.evernote.android.state.StateSaver;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -51,7 +52,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -76,10 +76,10 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.gson.Gson;
 import com.inkhornsolutions.chjrider.Common.Common;
-import com.inkhornsolutions.chjrider.EventBus.DriverRequestRecieved;
+import com.inkhornsolutions.chjrider.EventBus.DriverRequestReceived;
 import com.inkhornsolutions.chjrider.Models.DriverInfoModel;
 import com.inkhornsolutions.chjrider.Models.RiderModel;
 import com.inkhornsolutions.chjrider.Models.TripPlanModel;
@@ -100,11 +100,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -137,11 +132,15 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private String tripNumberId = "";
     private boolean isTripStart = false;
 
-    private DriverRequestRecieved driverRequestReceived;
+    private DriverRequestReceived driverRequestReceived;
     private TripPlanModel tripPlanModel;
     private Polyline blackPolyLine, greyPolyline;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private List<LatLng> polylineList;
+
+    SharedPreferences stateSavePrefs;
+    SharedPreferences.Editor editor;
+    String tripID;
 
     private GeoQueryEventListener pickupGeoQueryEventListner = new GeoQueryEventListener() {
         @Override
@@ -150,7 +149,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             toolbar_pickup_and_dropoff_layout.setVisibility(View.GONE);
             gotoDropOffLayout.setVisibility(View.VISIBLE);
             tvDropOffAddress.setText(tvDropOff.getText().toString());
-            tvDropOffOrderRefNo.setText(driverRequestReceived.getOrderRefNumber());
+            tvDropOffOrderRefNo.setText(driverRequestReceived.getOrderId());
+
+            stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+            editor = stateSavePrefs.edit();
+            editor.putBoolean("pickupGeoQueryEvent", true);
+            editor.putBoolean("requestReceived", false);
+            editor.putBoolean("destinationGeoQueryEvent", false);
+            editor.apply();
 
             LatLng pickupLatLng = new LatLng(Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[0]),
                     Double.parseDouble(driverRequestReceived.getPickupLocation().split(",")[1]));
@@ -219,6 +225,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             toolbar_pickup_and_dropoff_layout.setVisibility(View.GONE);
             rideSummaryLayout.setVisibility(View.VISIBLE);
 
+            stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+            editor = stateSavePrefs.edit();
+            editor.putBoolean("destinationGeoQueryEvent", true);
+            editor.putBoolean("requestReceived", false);
+            editor.putBoolean("pickupGeoQueryEvent", false);
+            editor.apply();
+
             UserUtils.sendAcceptRequestToRider(rideSummaryLayout, MainActivity.this, driverRequestReceived.getKey(), tripNumberId);
 
             LatLng pickUpLatLng = new LatLng(
@@ -245,17 +258,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
 
-            tvOrderRefNoRideSummary.setText(driverRequestReceived.getOrderRefNumber());
+            tvOrderRefNoRideSummary.setText(driverRequestReceived.getOrderId());
             FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-                        String distancePickup = snapshot.child("distancePickup").getValue().toString().replace("km","");
-                        String dropOffDistance = snapshot.child("dropOffDistance").getValue().toString().replace("km","");;
+                    if (snapshot.exists()) {
+                        String distancePickup = snapshot.child("distancePickup").getValue().toString().replace("km", "");
+                        String dropOffDistance = snapshot.child("distanceDestination").getValue().toString().replace("km", "");
+                        ;
 
-                        Log.d("address1" ,""+distancePickup+"");
-                        Log.d("address1" ,""+dropOffDistance+"");
-
+                        Log.d("address1", "" + distancePickup + "");
+                        Log.d("address1", "" + dropOffDistance + "");
 
                         double totalDistance = Double.parseDouble(distancePickup) + Double.parseDouble(dropOffDistance);
                         tvDistanceRideSummary.setText("" + totalDistance + " km");
@@ -264,7 +277,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                 @Override
                 public void onCancelled(@NonNull @NotNull DatabaseError error) {
-
+                    Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -289,6 +302,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             tripNumberId = "";
             isTripStart = false;
 
+            stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+            stateSavePrefs.edit().clear().apply();
 
             if (destinationGeoQuery != null) {
                 destinationGeoFire.removeLocation(key);
@@ -323,7 +338,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        StateSaver.restoreInstanceState(this, savedInstanceState);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -429,6 +443,63 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 yesterdayLayout.setVisibility(View.VISIBLE);
                 newOrderLayout.setVisibility(View.GONE);
                 gotoPickupLayout.setVisibility(View.GONE);
+
+                if (driverRequestReceived != null) {
+                    if (TextUtils.isEmpty(tripNumberId)) {
+
+                        newOrderLayout.setVisibility(View.GONE);
+                        mgoogleMap.clear();
+                        UserUtils.sendDeclineRequest(newOrderLayout, MainActivity.this, driverRequestReceived.getKey());
+                        driverRequestReceived = null;
+                        HashMap<String, Object> tripCancel = new HashMap<>();
+                        tripCancel.put("cancel", true);
+                        FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripCancel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull @NotNull Exception e) {
+
+                                    }
+                                });
+
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+
+                            HashMap<String, Object> tripCancel = new HashMap<>();
+                            tripCancel.put("cancel", true);
+                            FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripCancel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                }
+                            })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @NotNull Exception e) {
+
+                                        }
+                                    });
+
+                            newOrderLayout.setVisibility(View.GONE);
+                            mgoogleMap.clear();
+                            UserUtils.sendDeclineAndRemoveRiderRequest(newOrderLayout, MainActivity.this,
+                                    driverRequestReceived.getKey(), tripNumberId);
+
+                            tripNumberId = "";
+                            driverRequestReceived = null;
+
+                            makeDriverOnline(location);
+
+                        }).addOnFailureListener(e -> Snackbar.make(newOrderLayout, e.getMessage(), Snackbar.LENGTH_LONG).show());
+                    }
+                }
             }
         });
 
@@ -555,6 +626,71 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        btnCancelDropOffJob.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                yesterdayLayout.setVisibility(View.VISIBLE);
+                newOrderLayout.setVisibility(View.GONE);
+                gotoPickupLayout.setVisibility(View.GONE);
+
+                if (driverRequestReceived != null) {
+                    if (TextUtils.isEmpty(tripNumberId)) {
+
+                        newOrderLayout.setVisibility(View.GONE);
+                        mgoogleMap.clear();
+                        UserUtils.sendDeclineAndRemoveRiderRequest(newOrderLayout, MainActivity.this, driverRequestReceived.getKey(), tripNumberId);
+                        driverRequestReceived = null;
+
+                        FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull @NotNull Exception e) {
+
+                                    }
+                                });
+
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            return;
+                        }
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+
+                            HashMap<String, Object> tripCancel = new HashMap<>();
+                            tripCancel.put("cancel", true);
+                            FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).updateChildren(tripCancel).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+
+                                }
+                            })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @NotNull Exception e) {
+
+                                        }
+                                    });
+
+                            newOrderLayout.setVisibility(View.GONE);
+                            mgoogleMap.clear();
+                            UserUtils.sendDeclineAndRemoveRiderRequest(newOrderLayout, MainActivity.this,
+                                    driverRequestReceived.getKey(), tripNumberId);
+
+                            tripNumberId = "";
+                            driverRequestReceived = null;
+
+                            makeDriverOnline(location);
+
+                        }).addOnFailureListener(e -> Snackbar.make(newOrderLayout, e.getMessage(), Snackbar.LENGTH_LONG).show());
+                    }
+                }
+            }
+        });
+
         btnContinueRide.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -593,6 +729,30 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
+//        stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+//        stateSavePrefs.edit().clear().apply();
+
+        SharedPreferences stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+        boolean isRequestReceived = stateSavePrefs.getBoolean("requestReceived", false);
+        boolean isPickupGeoQueryEvent = stateSavePrefs.getBoolean("pickupGeoQueryEvent", false);
+        boolean isDestinationGeoQueryEvent = stateSavePrefs.getBoolean("destinationGeoQueryEvent", false);
+        tripID = stateSavePrefs.getString("tripNumberId", "");
+
+        if (isRequestReceived && tripID != null) {
+
+            SharedPreferences sharedPref = getSharedPreferences("driverRequestReceived", Context.MODE_PRIVATE);
+
+            Gson gson = new Gson();
+            String json = sharedPref.getString("driverRequestReceived", "");
+            DriverRequestReceived driverRequestReceived = gson.fromJson(json, DriverRequestReceived.class);
+
+            EventBus.getDefault().postSticky(driverRequestReceived);
+
+        } else if (isPickupGeoQueryEvent) {
+            pickupGeoQuery.addGeoQueryEventListener(pickupGeoQueryEventListner);
+        } else if (isDestinationGeoQueryEvent) {
+            destinationGeoQuery.addGeoQueryEventListener(destinationGeoQueryEventListner);
+        }
     }
 
     private void drawPathFromCurrentLocation(String PickupLocation, String destinationLocation) {
@@ -693,9 +853,16 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onDriverRequestReceived(DriverRequestRecieved event) {
+    public void onDriverRequestReceived(DriverRequestReceived event) {
 
         driverRequestReceived = event;
+
+        stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+        editor = stateSavePrefs.edit();
+        editor.putBoolean("requestReceived", true);
+        editor.putBoolean("pickupGeoQueryEvent", false);
+        editor.putBoolean("destinationGeoQueryEvent", false);
+        editor.apply();
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
@@ -808,7 +975,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                     mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
                                     mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
 
-                                    newOrderLayout.setVisibility(View.VISIBLE);
+                                    if (tripID.equals("")) {
+                                        newOrderLayout.setVisibility(View.VISIBLE);
+                                    }
 
                                     //Timer lagana ha.
 
@@ -826,15 +995,25 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                     String dropOffDistance = distanceInfo.getText();
                                                     String dropOffDuration = durationInfo.getText();
 
-                                                    btnAcceptJob.setOnClickListener(new View.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(View v) {
-                                                            yesterdayLayout.setVisibility(View.GONE);
-                                                            newOrderLayout.setVisibility(View.GONE);
-                                                            gotoPickupLayout.setVisibility(View.VISIBLE);
-                                                            createTripPlan(event, pickupDuration, pickupDistance, dropOffDistance, dropOffDuration);
-                                                        }
-                                                    });
+                                                    if (tripID.equals("")) {
+                                                        btnAcceptJob.setOnClickListener(new View.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(View v) {
+                                                                yesterdayLayout.setVisibility(View.GONE);
+                                                                newOrderLayout.setVisibility(View.GONE);
+                                                                gotoPickupLayout.setVisibility(View.VISIBLE);
+                                                                createTripPlan(event, pickupDuration, pickupDistance, dropOffDistance, dropOffDuration);
+                                                            }
+                                                        });
+                                                    } else {
+                                                        yesterdayLayout.setVisibility(View.GONE);
+                                                        newOrderLayout.setVisibility(View.GONE);
+                                                        gotoPickupLayout.setVisibility(View.GONE);
+                                                        yesterdayLayout.setVisibility(View.GONE);
+                                                        createTripPlan(event, pickupDuration, pickupDistance, dropOffDistance, dropOffDuration);
+                                                    }
+
+
                                                 }
 
                                                 @Override
@@ -861,8 +1040,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void createTripPlan(DriverRequestRecieved event, String pickupDuration, String pickupDistance, String dropOffDistance, String dropOffDuration) {
-//        setProcessLayout(true);
+    private void createTripPlan(DriverRequestReceived event, String pickupDuration, String pickupDistance, String dropOffDistance, String dropOffDuration) {
 
         FirebaseDatabase.getInstance().getReference(".info/serverTimeOffset").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -903,12 +1081,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                         tripPlanModel.setDurationPickup(pickupDuration);
                                                         tripPlanModel.setCurrentLat(location.getLatitude());
                                                         tripPlanModel.setCurrentLng(location.getLongitude());
-                                                        tripPlanModel.setOrderId(event.getOrderRefNumber());
-                                                        tripPlanModel.setDropOffDistance(dropOffDistance);
-                                                        tripPlanModel.setDropOffDuration(dropOffDuration);
+                                                        tripPlanModel.setOrderId(event.getOrderId());
+                                                        tripPlanModel.setDistanceDestination(dropOffDistance);
+                                                        tripPlanModel.setDurationDestination(dropOffDuration);
 
 
-                                                        tripNumberId = Common.createUniqueTripIdNumber(timeOffset);
+                                                        if (tripID.equals("")) {
+
+                                                            tripNumberId = Common.createUniqueTripIdNumber(timeOffset);
+                                                        }
+                                                        else {
+                                                            tripNumberId = tripID;
+                                                        }
+
 
                                                         FirebaseDatabase.getInstance().getReference("Trips")
                                                                 .child(tripNumberId)
@@ -916,30 +1101,35 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                 .addOnSuccessListener(aVoid -> {
 
                                                                     tvPickupAddress.setText(tvPickUp.getText().toString());
-                                                                    tvOrderRefNo.setText(event.getOrderRefNumber());
+                                                                    tvOrderRefNo.setText(event.getOrderId());
                                                                     tvDistanceFromPickup.setText(pickupDistance);
                                                                     tvETA.setText(pickupDuration);
 
                                                                     firebaseFirestore.collection("Users").document(event.getDropOffUserId())
                                                                             .collection("Cart")
-                                                                            .whereEqualTo("ID", event.getOrderRefNumber())
+                                                                            .whereEqualTo("ID", event.getOrderId())
                                                                             .get()
                                                                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                                                         @Override
                                                                         public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
-                                                                            if (task.isSuccessful()){
-                                                                                for (DocumentSnapshot snapshots : task.getResult()){
-                                                                                    if (snapshot.exists()){
+                                                                            if (task.isSuccessful()) {
+                                                                                for (DocumentSnapshot snapshots : task.getResult()) {
+                                                                                    if (snapshot.exists()) {
                                                                                         String orderTotal = snapshots.getString("total");
                                                                                         tvEstimatedFare.setText(orderTotal);
                                                                                     }
                                                                                 }
                                                                             }
                                                                         }
-                                                                    })
+                                                                            })
                                                                             .addOnFailureListener(e -> {
-                                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                                                    });
+                                                                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                                            });
+
+                                                                    stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+                                                                    editor = stateSavePrefs.edit();
+                                                                    editor.putString("tripNumberId", tripNumberId);
+                                                                    editor.apply();
 
                                                                     btnCall.setOnClickListener(new View.OnClickListener() {
                                                                         @Override
@@ -968,6 +1158,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                 }).addOnFailureListener(e -> {
                                                             Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                                         });
+
                                                     }
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override
@@ -992,17 +1183,13 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
-    private void setOfflineModeForDriver(DriverRequestRecieved event) {
+    private void setOfflineModeForDriver(DriverRequestReceived event) {
 
         UserUtils.sendAcceptRequestToRider(findViewById(android.R.id.content), this, event.getKey(), tripNumberId);
 
-        if (currentUserRef != null){
+        if (currentUserRef != null) {
             currentUserRef.removeValue();
         }
-        newOrderLayout.setVisibility(View.GONE);
-
-        gotoPickupLayout.setVisibility(View.VISIBLE);
-
         isTripStart = true;
     }
 
@@ -1081,7 +1268,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     if (!isTripStart){
                         makeDriverOnline(location);
                     }
-                    if (!tripNumberId.equals("")){
+                    if (!tripID.equals("")){
+                        tripNumberId = tripID;
                         TripPlanModel tripPlanModel = new TripPlanModel();
 
                         tripPlanModel.setCurrentLat(location.getLatitude());

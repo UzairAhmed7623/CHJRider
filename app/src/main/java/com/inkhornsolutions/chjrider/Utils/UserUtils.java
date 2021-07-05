@@ -366,4 +366,53 @@ public class UserUtils {
             }
         });
     }
+
+    public static void sendOrderCompletedNotification(View view, Context context, String key) {
+        CompositeDisposable compositeDisposable = new CompositeDisposable();
+        IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
+
+        FirebaseDatabase.getInstance()
+                .getReference("Tokens")
+                .child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    TokenModel tokenModel = snapshot.getValue(TokenModel.class);
+
+                    Map<String, String> notificationdata = new HashMap<>();
+                    notificationdata.put("title", "OrderCompleted");
+                    notificationdata.put("body", "Congrats. Your order has been completed successfully!");
+                    notificationdata.put("RiderKey", key);
+
+                    FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
+                    compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
+                            .subscribeOn(Schedulers.newThread())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(fcmResponse -> {
+                                if (fcmResponse.getSuccess() == 0){
+                                    compositeDisposable.clear();
+                                    Snackbar.make(view, "Order completed message send failed!", Snackbar.LENGTH_LONG).show();
+                                }
+                                else {
+                                    Snackbar.make(view, "Order completed!", Snackbar.LENGTH_LONG).show();
+                                }
+
+                            }, throwable -> {
+                                compositeDisposable.clear();
+                                Snackbar.make(view, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }));
+                }
+                else {
+                    compositeDisposable.clear();
+                    Snackbar.make(view, "Token not found!", Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                compositeDisposable.clear();
+                Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
 }

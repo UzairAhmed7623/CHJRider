@@ -1,14 +1,17 @@
 package com.inkhornsolutions.chjrider.Service;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 import com.inkhornsolutions.chjrider.Common.Common;
-import com.inkhornsolutions.chjrider.EventBus.DriverRequestRecieved;
+import com.inkhornsolutions.chjrider.EventBus.DriverRequestReceived;
 import com.inkhornsolutions.chjrider.Utils.UserUtils;
 
 import org.greenrobot.eventbus.EventBus;
@@ -42,25 +45,33 @@ public class MyFirebaseService extends FirebaseMessagingService {
             String DestinationLocation = remoteMessage.getData().get("DestinationLocation");
             String DestinationLocationString = remoteMessage.getData().get("DestinationLocationString");
             String dropOffUserId = remoteMessage.getData().get("dropOffUserId");
-            String orderRefNumber = remoteMessage.getData().get("orderRefNumber");
+            String orderId = remoteMessage.getData().get("orderRefNumber");
 
             Log.d("TAG", "Title: "+title+"riderKey: "+riderKey+"PickupLocation: "+PickupLocation
                     +"PickupLocationString: "+PickupLocationString+"DestinationLocation: "+DestinationLocation
                     +"DestinationLocationString: "+DestinationLocationString);
 
-            if (title.equals("RequestDriver")){
+            if (title.equals("RequestDriver")) {
                 Log.d("TAG", "Title: " + title);
 
-                DriverRequestRecieved driverRequestRecieved = new DriverRequestRecieved();
-                driverRequestRecieved.setKey(riderKey);
-                driverRequestRecieved.setPickupLocation(PickupLocation);
-                driverRequestRecieved.setPickupLocationString(PickupLocationString);
-                driverRequestRecieved.setDestinationLocation(DestinationLocation);
-                driverRequestRecieved.setDestinationLocationString(DestinationLocationString);
-                driverRequestRecieved.setDropOffUserId(dropOffUserId);
-                driverRequestRecieved.setOrderRefNumber(orderRefNumber);
+                DriverRequestReceived driverRequestReceived = new DriverRequestReceived();
+                driverRequestReceived.setKey(riderKey);
+                driverRequestReceived.setPickupLocation(PickupLocation);
+                driverRequestReceived.setPickupLocationString(PickupLocationString);
+                driverRequestReceived.setDestinationLocation(DestinationLocation);
+                driverRequestReceived.setDestinationLocationString(DestinationLocationString);
+                driverRequestReceived.setDropOffUserId(dropOffUserId);
+                driverRequestReceived.setOrderId(orderId);
 
-                EventBus.getDefault().postSticky(driverRequestRecieved);
+                SharedPreferences sharedPref = getSharedPreferences("driverRequestReceived", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+
+                Gson gson = new Gson();
+                String json = gson.toJson(driverRequestReceived);
+                editor.putString("driverRequestReceived", json);
+                editor.apply();
+
+                EventBus.getDefault().postSticky(driverRequestReceived);
                 Log.d("TAG", "Chala");
 
             }

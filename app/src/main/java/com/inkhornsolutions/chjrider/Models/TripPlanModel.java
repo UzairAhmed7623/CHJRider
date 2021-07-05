@@ -8,28 +8,11 @@ public class TripPlanModel {
     private String destination, destinationString;
     private String distancePickup, distanceDestination;
     private String durationPickup, durationDestination;
-    private String dropOffDistance, dropOffDuration;
     private double currentLat, currentLng;
     private boolean isDone, isCancel;
     private String orderId;
 
     public TripPlanModel() {
-    }
-
-    public String getDropOffDistance() {
-        return dropOffDistance;
-    }
-
-    public void setDropOffDistance(String dropOffDistance) {
-        this.dropOffDistance = dropOffDistance;
-    }
-
-    public String getDropOffDuration() {
-        return dropOffDuration;
-    }
-
-    public void setDropOffDuration(String dropOffDuration) {
-        this.dropOffDuration = dropOffDuration;
     }
 
     public String getRider() {
