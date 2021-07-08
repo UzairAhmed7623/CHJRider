@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.inkhornsolutions.chjrider">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.CALL_PHONE"/>
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -13,6 +13,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CHJRider">
+        <activity android:name=".RequestLocation" />
+        <activity android:name=".Verified" />
+        <activity android:name=".VerifyPhone" />
+        <activity android:name=".Login" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -20,12 +24,10 @@
 
         <activity
             android:name=".MainActivity"
-            android:label="@string/title_activity_main">
-
-        </activity>
+            android:label="@string/title_activity_main" />
 
         <service
-            android:name="com.inkhornsolutions.chjrider.Service.MyFirebaseService"
+            android:name=".Service.MyFirebaseService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

@@ -11,8 +11,17 @@ public class TripPlanModel {
     private double currentLat, currentLng;
     private boolean isDone, isCancel;
     private String orderId;
+    private String total;
 
     public TripPlanModel() {
+    }
+
+    public String getTotal() {
+        return total;
+    }
+
+    public void setTotal(String total) {
+        this.total = total;
     }
 
     public String getRider() {

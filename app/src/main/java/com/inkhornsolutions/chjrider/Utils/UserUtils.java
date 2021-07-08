@@ -23,6 +23,7 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -30,7 +31,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserUtils {
 
-    private static String id = "WhaMIBVZyxUWtN9EPrx16d9Dzoo2";
+    private static final String id = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
     public static void updateToken(Context context, String token) {
 
@@ -40,18 +41,16 @@ public class UserUtils {
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         DatabaseReference tokens = db.getReference("Tokens");
 
-        tokens.child(id).setValue(tokenModel);
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(tokenModel)
+                    .addOnSuccessListener(aVoid -> {
 
-//        if (FirebaseAuth.getInstance().getCurrentUser() != null){
-//            tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(tokenModel)
-//                    .addOnSuccessListener(aVoid -> {
-//
-////                        Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
-//
-//
-//                    })
-//                    .addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
-//        }
+//                        Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
+
+
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
     }
 
     public static void sendDeclineRequest(View view, Context context, String key) {

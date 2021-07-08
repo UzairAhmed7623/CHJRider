@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fitsSystemWindows="true"
+    tools:context=".VerifyPhone">
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Phone Verification"
+        android:textStyle="bold"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:letterSpacing="0.06"
+        android:textColor="@color/black"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/phonePlace"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome"
+        android:layout_marginTop="35dp"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:text="Enter a verification code\nsent to 92-323-3344-430"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:layout_centerHorizontal="true"
+        android:letterSpacing="0.06"
+        android:textSize="12sp"/>
+
+    <com.chaos.view.PinView
+        android:id="@+id/otp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/phonePlace"
+        style="@style/PinWidget.PinView"
+        android:cursorVisible="true"
+        android:inputType="text"
+        android:itemBackground="@color/myColorThird"
+        android:padding="10dp"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cursorColor="@color/myColor"
+        app:cursorWidth="0dp"
+        app:hideLineWhenFilled="true"
+        app:itemCount="6"
+        app:itemHeight="40dp"
+        app:itemRadius="5dp"
+        app:itemSpacing="8dp"
+        app:itemWidth="40dp"
+        app:lineWidth="-1dp"
+        app:viewType="rectangle" />
+
+    <Button
+        android:id="@+id/buttonSignIn"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_below="@id/otp"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:backgroundTint="@color/myColor"
+        android:text="Next"
+        android:textColor="@color/white"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@+id/buttonSignIn">
+
+        <TextView
+            android:id="@+id/resend_code_Place"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:gravity="center"
+            android:text="Didn't Receive code? "
+            android:textColor="@color/grey_40"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/resend_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@+id/resend_code_Place"
+            android:layout_marginTop="7dp"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="@drawable/ripple"
+            android:text="Resend Code (30s)"
+            android:textColor="@color/myColor"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
