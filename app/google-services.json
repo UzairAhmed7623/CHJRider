@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "438055928659-2cedhij7qkc6iamv9ks9n716dbn6hu33.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.chjrider",
+            "certificate_hash": "1ed90313935d19409bca77e80958a97574bb7148"
+          }
+        },
+        {
           "client_id": "438055928659-e25sff2gvcs33ve6ame3o3sgqh02gg2r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

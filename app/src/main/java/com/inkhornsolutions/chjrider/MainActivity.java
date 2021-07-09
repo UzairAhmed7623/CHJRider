@@ -70,6 +70,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -106,7 +107,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private GoogleMap mgoogleMap;
     private MaterialButton btnGoOnline, btnIgnoreJob, btnAcceptJob, btnCancelJob, btnCall, btnPickup, btnDropOff, btnCancelDropOffJob, btnDropOffCall;
-    private TextView tvMoneyEarned, tvHoursSpentOnline, tvTotalDistanceCovered, tvTotalJobs;
+    private TextView tvMoneyEarned, tvMoneyCollected, tvTotalDistanceCovered, tvTotalJobs;
     private TextView tvPickUp, tvDropOff, tvPickUpDistance, tvEstTime;
     private TextView tvPickupAddress, tvOrderRefNo, tvDistanceFromPickup, tvEstimatedFare, tvETA;
     private TextView tvDropOffAddress, tvDropOffOrderRefNo, tvDistanceFromDropOff, tvEstimatedFareDropOff;
@@ -388,7 +389,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         //yesterday layout
         btnGoOnline = (MaterialButton) findViewById(R.id.btnGoOnline);
         tvMoneyEarned = (TextView) findViewById(R.id.tvMoneyEarned);
-        tvHoursSpentOnline = (TextView) findViewById(R.id.tvHoursSpentOnline);
+        tvMoneyCollected = (TextView) findViewById(R.id.tvMoneyCollected);
         tvTotalDistanceCovered = (TextView) findViewById(R.id.tvTotalDistanceCovered);
         tvTotalJobs = (TextView) findViewById(R.id.tvTotalJobs);
         yesterdayLayout = (ConstraintLayout) findViewById(R.id.yesterdayLayout);
@@ -765,8 +766,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
-//        stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
-//        stateSavePrefs.edit().clear().apply();
+        stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
+        stateSavePrefs.edit().clear().apply();
 
         SharedPreferences stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
         boolean isRequestReceived = stateSavePrefs.getBoolean("requestReceived", false);
@@ -890,7 +891,31 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             gotoPickupLayout.setVisibility(View.GONE);
         }
 
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Trips");
+        Query query = databaseReference.orderByChild("driver").equalTo(id);
 
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NotNull DataSnapshot dataSnapshot) {
+
+                long count  = dataSnapshot.getChildrenCount();
+
+                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
+
+                    String moneyEarned = snapshot.child("total").getValue(String.class);
+                    String distanceDestination = snapshot.child("distanceDestination").getValue(String.class);
+                    String distancePickup = snapshot.child("distancePickup").getValue(String.class);
+
+                    Log.d("moneyEarned", moneyEarned + ", "+ count + ", "+ distanceDestination + ", "+distancePickup);
+
+
+
+                }
+            }
+            @Override
+            public void onCancelled(@NotNull DatabaseError databaseError) {
+            }
+        });
     }
 
     private void drawPathFromCurrentLocation(String PickupLocation, String destinationLocation, DriverRequestReceived driverRequestReceived) {
@@ -1248,6 +1273,66 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                                     String orderTotal = snapshots.getString("total");
                                                                                     tripPlanModel.setTotal(orderTotal);
                                                                                     tvEstimatedFare.setText(orderTotal);
+
+                                                                                    FirebaseDatabase.getInstance().getReference("Trips")
+                                                                                            .child(tripNumberId)
+                                                                                            .setValue(tripPlanModel)
+                                                                                            .addOnSuccessListener(aVoid -> {
+
+                                                                                                tvPickupAddress.setText(tvPickUp.getText().toString());
+                                                                                                tvOrderRefNo.setText(event.getOrderId());
+                                                                                                tvDistanceFromPickup.setText(pickupDistance);
+                                                                                                tvETA.setText(pickupDuration);
+
+                                                                                                if (!tripID.equals("")) {
+                                                                                                    toolbar_pickup_and_dropoff_layout.setVisibility(View.VISIBLE);
+                                                                                                    pickupPlace.setVisibility(View.VISIBLE);
+                                                                                                    dropoffPlace.setVisibility(View.GONE);
+                                                                                                    tvArrivalTimeToolbar.setText(pickupDuration);
+                                                                                                    tvAddress.setText(tvPickUp.getText().toString());
+
+                                                                                                    LatLng DestinationLatLng = new LatLng(
+                                                                                                            Double.parseDouble(event.getDestinationLocation().split(",")[0]),
+                                                                                                            Double.parseDouble(event.getDestinationLocation().split(",")[1]));
+
+                                                                                                    createGeoFireDestinationLocation(driverRequestReceived.getKey(), DestinationLatLng);
+                                                                                                }
+
+                                                                                                SharedPreferences sharedPref = getSharedPreferences("tripPlanModel", Context.MODE_PRIVATE);
+                                                                                                SharedPreferences.Editor editor = sharedPref.edit();
+
+                                                                                                Gson gson = new Gson();
+                                                                                                String json = gson.toJson(tripPlanModel);
+                                                                                                editor.putString("tripPlanModel", json);
+                                                                                                editor.apply();
+
+                                                                                                btnCall.setOnClickListener(new View.OnClickListener() {
+                                                                                                    @Override
+                                                                                                    public void onClick(View v) {
+                                                                                                        Dexter.withContext(getApplicationContext()).withPermission(Manifest.permission.CALL_PHONE).withListener(new PermissionListener() {
+                                                                                                            @Override
+                                                                                                            public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                                                                                                                Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + riderModel.getPhoneNumber()));
+                                                                                                                startActivity(intent);
+                                                                                                            }
+                                                                                                            @Override
+                                                                                                            public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                                                                                                                Toast.makeText(MainActivity.this, "Please grant permission!", Toast.LENGTH_SHORT).show();
+                                                                                                            }
+
+                                                                                                            @Override
+                                                                                                            public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+                                                                                                                permissionToken.continuePermissionRequest();
+                                                                                                            }
+                                                                                                        });
+                                                                                                    }
+                                                                                                });
+
+                                                                                                setOfflineModeForDriver(event);
+
+                                                                                            }).addOnFailureListener(e -> {
+                                                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                                                                    });
                                                                                 }
                                                                             }
                                                                         }
@@ -1256,67 +1341,6 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                                                 .addOnFailureListener(e -> {
                                                                     Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                                                 });
-
-                                                        FirebaseDatabase.getInstance().getReference("Trips")
-                                                                .child(tripNumberId)
-                                                                .setValue(tripPlanModel)
-                                                                .addOnSuccessListener(aVoid -> {
-
-                                                                    tvPickupAddress.setText(tvPickUp.getText().toString());
-                                                                    tvOrderRefNo.setText(event.getOrderId());
-                                                                    tvDistanceFromPickup.setText(pickupDistance);
-                                                                    tvETA.setText(pickupDuration);
-
-                                                                    if (!tripID.equals("")) {
-                                                                        toolbar_pickup_and_dropoff_layout.setVisibility(View.VISIBLE);
-                                                                        pickupPlace.setVisibility(View.VISIBLE);
-                                                                        dropoffPlace.setVisibility(View.GONE);
-                                                                        tvArrivalTimeToolbar.setText(pickupDuration);
-                                                                        tvAddress.setText(tvPickUp.getText().toString());
-
-                                                                        LatLng DestinationLatLng = new LatLng(
-                                                                                Double.parseDouble(event.getDestinationLocation().split(",")[0]),
-                                                                                Double.parseDouble(event.getDestinationLocation().split(",")[1]));
-
-                                                                        createGeoFireDestinationLocation(driverRequestReceived.getKey(), DestinationLatLng);
-                                                                    }
-
-                                                                    SharedPreferences sharedPref = getSharedPreferences("tripPlanModel", Context.MODE_PRIVATE);
-                                                                    SharedPreferences.Editor editor = sharedPref.edit();
-
-                                                                    Gson gson = new Gson();
-                                                                    String json = gson.toJson(tripPlanModel);
-                                                                    editor.putString("tripPlanModel", json);
-                                                                    editor.apply();
-
-                                                                    btnCall.setOnClickListener(new View.OnClickListener() {
-                                                                        @Override
-                                                                        public void onClick(View v) {
-                                                                            Dexter.withContext(getApplicationContext()).withPermission(Manifest.permission.CALL_PHONE).withListener(new PermissionListener() {
-                                                                                @Override
-                                                                                public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
-                                                                                    Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse("tel:" + riderModel.getPhoneNumber()));
-                                                                                    startActivity(intent);
-                                                                                }
-                                                                                @Override
-                                                                                public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
-                                                                                    Toast.makeText(MainActivity.this, "Please grant permission!", Toast.LENGTH_SHORT).show();
-                                                                                }
-
-                                                                                @Override
-                                                                                public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
-                                                                                    permissionToken.continuePermissionRequest();
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                    });
-
-                                                                    setOfflineModeForDriver(event);
-
-                                                                }).addOnFailureListener(e -> {
-                                                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                                        });
-
                                                     }
                                                 }).addOnFailureListener(new OnFailureListener() {
                                                     @Override

@@ -31,8 +31,6 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserUtils {
 
-    private static final String id = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
-
     public static void updateToken(Context context, String token) {
 
 
@@ -69,7 +67,7 @@ public class UserUtils {
                     Map<String, String> notificationdata = new HashMap<>();
                     notificationdata.put("title", "Decline");
                     notificationdata.put("body", "This message represent action driver decline");
-                    notificationdata.put("DriverKey", id);
+                    notificationdata.put("DriverKey", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
                     FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
                     compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
@@ -120,7 +118,7 @@ public class UserUtils {
                     Map<String, String> notificationdata = new HashMap<>();
                     notificationdata.put("title", "Accept");
                     notificationdata.put("body", "This message represent action driver accept");
-                    notificationdata.put("DriverKey", id);
+                    notificationdata.put("DriverKey", FirebaseAuth.getInstance().getCurrentUser().getUid());
                     notificationdata.put("TripKey", tripNumberId);
 
                     FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
@@ -167,7 +165,7 @@ public class UserUtils {
                     Map<String, String> notificationdata = new HashMap<>();
                     notificationdata.put("title", "DriverArrived");
                     notificationdata.put("body", "Your driver arrived!");
-                    notificationdata.put("DriverKey", id);
+                    notificationdata.put("DriverKey", FirebaseAuth.getInstance().getCurrentUser().getUid());
                     notificationdata.put("TripKey", tripNumberId);
 
                     FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
@@ -222,7 +220,7 @@ public class UserUtils {
                                 Map<String, String> notificationdata = new HashMap<>();
                                 notificationdata.put("title", "DeclineAndRemoveTrip");
                                 notificationdata.put("body", "Your driver declined trip!");
-                                notificationdata.put("DriverKey", id);
+                                notificationdata.put("DriverKey", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
                                 notificationdata.put("RiderKey", key);
 

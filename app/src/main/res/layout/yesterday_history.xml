@@ -118,28 +118,28 @@
                 android:layout_weight="1">
 
                 <TextView
-                    android:id="@+id/tvHoursSpentOnlinePlace"
+                    android:id="@+id/tvMoneyCollectedPlace"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/montserra_regular_bold"
                     android:gravity="start"
                     android:includeFontPadding="false"
                     android:padding="10dp"
-                    android:text="Hours spent online"
+                    android:text="Money Collected"
                     android:textColor="@color/black"
                     android:textFontWeight="500"
                     android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/tvHoursSpentOnline"
+                    android:id="@+id/tvMoneyCollected"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/tvHoursSpentOnlinePlace"
+                    android:layout_below="@+id/tvMoneyCollectedPlace"
                     android:layout_marginStart="10dp"
                     android:fontFamily="@font/montserra_regular_bold"
                     android:gravity="start"
                     android:letterSpacing="0.05"
-                    android:text="9 Hrs"
+                    android:text="0.0"
                     android:textColor="@color/myColor"
                     android:textFontWeight="500"
                     android:textSize="16sp" />
@@ -148,7 +148,7 @@
                     android:id="@+id/tvTotalJobsPlace"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/tvHoursSpentOnline"
+                    android:layout_below="@+id/tvMoneyCollected"
                     android:fontFamily="@font/montserra_regular_bold"
                     android:gravity="start"
                     android:includeFontPadding="false"
