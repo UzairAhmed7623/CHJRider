@@ -142,6 +142,9 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     SharedPreferences stateSavePrefs;
     SharedPreferences.Editor editor;
     String tripID;
+    private double sum = 0;
+    double distanceCoveredPlace, distanceCovered, totalMoneyCollectedPlace, totalMoneyCollected, totalMoneyEarned;
+    long totalJobs;
 
     private GeoQueryEventListener pickupGeoQueryEventListner = new GeoQueryEventListener() {
         @Override
@@ -898,24 +901,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onDataChange(@NotNull DataSnapshot dataSnapshot) {
 
-                long count  = dataSnapshot.getChildrenCount();
-
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
                     String moneyEarned = snapshot.child("total").getValue(String.class);
                     String distanceDestination = snapshot.child("distanceDestination").getValue(String.class);
                     String distancePickup = snapshot.child("distancePickup").getValue(String.class);
 
-                    Log.d("moneyEarned", moneyEarned + ", "+ count + ", "+ distanceDestination + ", "+distancePickup);
+                    String distanceDestinationLastWord = distanceDestination.substring(distanceDestination.lastIndexOf(" ") + 1);
+                    String distancePickupLastWord = distancePickup.substring(distancePickup.lastIndexOf(" ") + 1);
 
+                    double distanceDestinationInKm, distancePickupInKm;
 
+                    if (distanceDestinationLastWord.equals("m")) {
+                        distanceDestinationInKm = Double.parseDouble(distanceDestination.replace("m", "")) / 1000;
+                    }
+                    else {
+                        distanceDestinationInKm = Double.parseDouble(distanceDestination.replace("km", ""));
+                    }
+
+                    if (distancePickupLastWord.equals("m")) {
+                        distancePickupInKm = Double.parseDouble(distancePickup.replace("m", "")) / 1000;
+                    }
+                    else {
+                        distancePickupInKm = Double.parseDouble(distancePickup.replace("km", ""));
+                    }
+
+                    distanceCoveredPlace = distanceDestinationInKm + distancePickupInKm;
+
+                    sum = sum + distanceCoveredPlace;
+
+                    totalMoneyCollectedPlace = totalMoneyCollectedPlace + Double.parseDouble(moneyEarned);
 
                 }
+                totalJobs = dataSnapshot.getChildrenCount();
+                tvTotalJobs.setText(String.valueOf(totalJobs));
+
+                distanceCovered = sum;
+                tvTotalDistanceCovered.setText(String.format("%.1f", distanceCovered) + "km");
+
+                totalMoneyCollected = totalMoneyCollectedPlace;
+                tvMoneyCollected.setText("PKR" + totalMoneyCollected);
+
+                totalMoneyEarned = totalJobs * 45;
+                tvMoneyEarned.setText("PKR" + totalMoneyEarned);
             }
             @Override
             public void onCancelled(@NotNull DatabaseError databaseError) {
             }
         });
+
     }
 
     private void drawPathFromCurrentLocation(String PickupLocation, String destinationLocation, DriverRequestReceived driverRequestReceived) {
@@ -1543,9 +1577,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_IN_PARENT);
                 params.setMargins(0, 100, 0, 0);
 
-                buildLocationRequest();
-                buildLocationCallBack();
-                updateLocation();
+                if (!tripID.equals("")) {
+                    Toast.makeText(MainActivity.this, "456", Toast.LENGTH_SHORT).show();
+                    buildLocationRequest();
+                    buildLocationCallBack();
+                    updateLocation();
+                }
             }
 
             @Override
