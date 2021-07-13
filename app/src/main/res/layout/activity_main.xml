@@ -16,6 +16,16 @@
         map:layout_constraintStart_toStartOf="parent"
         map:layout_constraintTop_toTopOf="parent" />
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/civProfile"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="20dp"
+        android:src="@drawable/account_circle"
+        map:layout_constraintEnd_toEndOf="parent"
+        map:layout_constraintTop_toTopOf="parent" />
+
     <include layout="@layout/toolbar_pickup_and_dropoff_layout"/>
 
     <include layout="@layout/yesterday_history" />

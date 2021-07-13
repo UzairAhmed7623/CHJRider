@@ -18,4 +18,12 @@
     <color name="grey_80">#37474F</color>
     <color name="grey_90">#263238</color>
 
+    <color name="profilePrimaryDark">#0084d1</color>
+    <color name="profileAccentColor">#F7F7F7</color>
+    <color name="whiteTextColor">#fff</color>
+    <color name="profileBackground">#fff</color>
+    <color name="blackTextColor">#000</color>
+
+    <color name="editTextBack">#f3f3f3</color>
+
 </resources>

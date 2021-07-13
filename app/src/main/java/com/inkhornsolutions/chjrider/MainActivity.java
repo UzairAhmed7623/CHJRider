@@ -38,6 +38,7 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
+import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -102,10 +103,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class MainActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private GoogleMap mgoogleMap;
+    private CircleImageView civProfile;
     private MaterialButton btnGoOnline, btnIgnoreJob, btnAcceptJob, btnCancelJob, btnCall, btnPickup, btnDropOff, btnCancelDropOffJob, btnDropOffCall;
     private TextView tvMoneyEarned, tvMoneyCollected, tvTotalDistanceCovered, tvTotalJobs;
     private TextView tvPickUp, tvDropOff, tvPickUpDistance, tvEstTime;
@@ -388,6 +392,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.myColorSecond));
+
+        civProfile = (CircleImageView) findViewById(R.id.civProfile);
 
         //yesterday layout
         btnGoOnline = (MaterialButton) findViewById(R.id.btnGoOnline);
@@ -950,6 +956,36 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()){
+                    DocumentSnapshot documentSnapshot = task.getResult();
+                    if (documentSnapshot.getString("driverImageProfile") != null){
+                        String driverProfileImage = documentSnapshot.getString("driverImageProfile");
+                        Glide.with(MainActivity.this).load(driverProfileImage).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.account_circle)).into(civProfile);
+                    }
+                    else {
+                        Log.d("TAG", "Not found!");
+                    }
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    civProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, Profile.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        });
     }
 
     private void drawPathFromCurrentLocation(String PickupLocation, String destinationLocation, DriverRequestReceived driverRequestReceived) {

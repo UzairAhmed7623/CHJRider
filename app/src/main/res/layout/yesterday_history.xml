@@ -95,7 +95,8 @@
                     android:paddingTop="10dp"
                     android:paddingEnd="10dp"
                     android:paddingStart="10dp"
-                    android:paddingBottom="0dp"                    android:text="Total Distance"
+                    android:paddingBottom="0dp"
+                    android:text="Total distance"
                     android:textColor="@color/black"
                     android:textFontWeight="500"
                     android:textSize="16sp" />
@@ -133,7 +134,7 @@
                     android:paddingEnd="10dp"
                     android:paddingStart="10dp"
                     android:paddingBottom="0dp"
-                    android:text="Money Collected"
+                    android:text="Money collected"
                     android:textColor="@color/black"
                     android:textFontWeight="500"
                     android:textSize="16sp" />
@@ -165,7 +166,7 @@
                     android:paddingEnd="10dp"
                     android:paddingStart="10dp"
                     android:paddingBottom="0dp"
-                    android:text="Total Jobs"
+                    android:text="Total rides"
                     android:textColor="@color/black"
                     android:textFontWeight="500"
                     android:textSize="16sp" />
