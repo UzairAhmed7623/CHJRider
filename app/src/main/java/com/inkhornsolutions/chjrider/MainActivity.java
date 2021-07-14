@@ -1611,7 +1611,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationbutton.getLayoutParams();
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, RelativeLayout.CENTER_IN_PARENT);
-                params.setMargins(0, 100, 0, 0);
+                params.setMargins(0, 50, 0, 0);
 
                 if (!tripID.equals("")) {
                     Toast.makeText(MainActivity.this, "456", Toast.LENGTH_SHORT).show();

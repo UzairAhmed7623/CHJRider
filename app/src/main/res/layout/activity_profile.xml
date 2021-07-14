@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/myColor"
+            app:contentScrim="@color/myColorSecond"
             app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
             app:scrimAnimationDuration="0">
 
@@ -125,7 +125,8 @@
                     android:id="@+id/nameImageView"
                     android:src="@drawable/account_circle"
                     android:background="@color/myColorSecond"
-                    style="@style/profileDetailsImage" />
+                    style="@style/profileDetailsImage"
+                    app:tint="@color/white" />
 
                 <TextView
                     android:id="@+id/nameTextView"

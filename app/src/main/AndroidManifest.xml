@@ -20,7 +20,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CHJRider">
-        <activity android:name=".Profile"></activity>
+        <activity
+            android:name=".Profile"
+            android:parentActivityName=".MainActivity" />
         <activity android:name=".RequestLocation" />
         <activity android:name=".Verified" />
         <activity android:name=".VerifyPhone" />
