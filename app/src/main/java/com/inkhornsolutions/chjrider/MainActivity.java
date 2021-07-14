@@ -143,12 +143,12 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private List<LatLng> polylineList;
 
-    SharedPreferences stateSavePrefs;
-    SharedPreferences.Editor editor;
-    String tripID;
+    private SharedPreferences stateSavePrefs;
+    private SharedPreferences.Editor editor;
+    private String tripID;
     private double sum = 0;
-    double distanceCoveredPlace, distanceCovered, totalMoneyCollectedPlace, totalMoneyCollected, totalMoneyEarned;
-    long totalJobs;
+    private double distanceCoveredPlace, distanceCovered, totalMoneyCollectedPlace, totalMoneyCollected, totalMoneyEarned;
+    private long totalJobs;
 
     private GeoQueryEventListener pickupGeoQueryEventListner = new GeoQueryEventListener() {
         @Override
