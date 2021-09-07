@@ -73,8 +73,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -341,6 +343,76 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     });
 
+            String kitchenKey = tripPlanModel.getRider();
+            String userId = driverRequestReceived.getKey();
+            String orderId = driverRequestReceived.getOrderId();
+
+            firebaseFirestore.collection("Users").document(userId)
+                    .collection("Cart").whereEqualTo("ID", orderId)
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot querySnapshot) {
+                            for (DocumentSnapshot documentSnapshot : querySnapshot) {
+
+                                String promotedOrder = documentSnapshot.getString("promotedOrder");
+                                String CHJPercentage = documentSnapshot.getString("CHJPercentage");
+                                String discountPercentage = documentSnapshot.getString("discountPercentage");
+                                String subTotal = documentSnapshot.getString("subTotal");
+                                String actualPrice = documentSnapshot.getString("actualPrice");
+                                String restaurantName = documentSnapshot.getString("restaurantName");
+
+                                if (promotedOrder.equals("yes")){
+                                    if (CHJPercentage != null && discountPercentage != null &&
+                                            Double.parseDouble(CHJPercentage) == Double.parseDouble(discountPercentage)){
+
+                                        Log.d("wallet", "totalRevenuewithoutDiscount: "+subTotal);
+                                        addResRevToDatabase(kitchenKey, Double.parseDouble(subTotal));
+                                        double CHJRevenueMinus = 0.0;
+                                        double CHJRevenue = 0.0;
+                                        addCHJRevToDatabase(CHJRevenueMinus, CHJRevenue, Double.parseDouble(subTotal), orderId, restaurantName, userId);
+                                    }
+                                    else if (CHJPercentage != null && discountPercentage != null && actualPrice != null &&
+                                            Double.parseDouble(CHJPercentage) > Double.parseDouble(discountPercentage)){
+                                        Log.d("CHJRevenue1", ""+actualPrice);
+
+                                        double difference = Double.parseDouble(CHJPercentage) - Double.parseDouble(discountPercentage);
+                                        Log.d("CHJRevenue2", ""+difference);
+
+                                        double CHJRevenue = (Double.parseDouble(actualPrice) / 100) * difference;
+                                        Log.d("CHJRevenue3", ""+CHJRevenue);
+
+                                        double resRevenuePer = (Double.parseDouble(actualPrice) / 100) * Double.parseDouble(CHJPercentage);
+                                        double resRevenue = Double.parseDouble(actualPrice) - resRevenuePer;
+                                        Log.d("CHJRevenue4", ""+resRevenue);
+                                        addResRevToDatabase(kitchenKey, resRevenue);
+
+                                        double CHJRevenueMinus = 0.0;
+                                        addCHJRevToDatabase(CHJRevenueMinus, CHJRevenue, resRevenue, orderId, restaurantName, userId);
+
+                                    }
+                                    else if (CHJPercentage != null && discountPercentage != null && actualPrice != null &&
+                                            Double.parseDouble(CHJPercentage) < Double.parseDouble(discountPercentage)){
+                                        Log.d("CHJRevenue1", ""+actualPrice);
+
+                                        double difference = Double.parseDouble(discountPercentage) - Double.parseDouble(CHJPercentage);
+                                        Log.d("CHJRevenue2", ""+difference);
+
+                                        double CHJRevenueMinus = (Double.parseDouble(actualPrice) / 100) * difference;
+                                        Log.d("CHJRevenue3", ""+CHJRevenueMinus);
+                                        double CHJRevenue = 0.0;
+
+                                        double resRevenuePer = (Double.parseDouble(actualPrice) / 100) * Double.parseDouble(CHJPercentage);
+                                        double resRevenue = Double.parseDouble(actualPrice) - resRevenuePer;
+                                        Log.d("CHJRevenue4", ""+ resRevenue);
+
+                                        addResRevToDatabase(kitchenKey,resRevenue);
+                                        addCHJRevToDatabase(CHJRevenueMinus, CHJRevenue, resRevenue, orderId, restaurantName, userId);
+                                    }
+                                }
+                            }
+                        }
+                    });
 
             tripNumberId = "";
             isTripStart = false;
@@ -377,6 +449,55 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     };
+    private void addCHJRevToDatabase(double CHJRevenueMinus, double chjRevenue, double resRevenue, String orderId, String restaurantName, String userId) {
+        HashMap<String, Object> revRecord = new HashMap<>();
+        revRecord.put("CHJRevenueMinus", String.valueOf(CHJRevenueMinus));
+        revRecord.put("chjRevenue", String.valueOf(chjRevenue));
+        revRecord.put("resRevenue", String.valueOf(resRevenue));
+        revRecord.put("orderId", orderId);
+        revRecord.put("restaurantName", restaurantName);
+        revRecord.put("userId", userId);
+        revRecord.put("timeStamp", FieldValue.serverTimestamp());
+
+        firebaseFirestore.collection("CHJPercentage").add(revRecord).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+            @Override
+            public void onSuccess(DocumentReference documentReference) {
+                Log.d("database", "Successfully added!");
+            }
+        });
+    }
+
+    private void addResRevToDatabase(String kitchenKey, double resRevenue) {
+        firebaseFirestore.collection("Restaurants").whereEqualTo("id", kitchenKey).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+
+                        for (DocumentSnapshot documentSnapshot1 : querySnapshot) {
+
+                            String kitchenId = documentSnapshot1.getId();
+                            String totalRevenue = documentSnapshot1.getString("totalRevenue");
+
+                            Log.d("total", resRevenue + " " + totalRevenue + " " + kitchenId);
+
+                            Double total = resRevenue + Double.parseDouble(totalRevenue);
+
+                            HashMap<String, Object> revenue = new HashMap<>();
+                            revenue.put("totalRevenue", String.valueOf(total));
+
+                            firebaseFirestore.collection("Restaurants").document(kitchenId)
+                                    .update(revenue)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d("database", "Successfully added!");
+
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
 
     @SuppressLint("NonMatchingStateSaverCalls")
     @Override
@@ -977,7 +1098,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-    civProfile.setOnClickListener(new View.OnClickListener() {
+        civProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, Profile.class);
@@ -1562,7 +1683,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void updateLocation() {
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());

@@ -79,7 +79,7 @@ public class VerifyPhone extends AppCompatActivity {
             }
         });
 
-        new CountDownTimer(30000, 500) {
+        new CountDownTimer(60000, 500) {
 
             public void onTick(long millisUntilFinished) {
                 resend_code.setEnabled(false);
@@ -98,6 +98,21 @@ public class VerifyPhone extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 sendVerificationCode(number);
+
+                new CountDownTimer(60000, 500) {
+
+                    public void onTick(long millisUntilFinished) {
+                        resend_code.setEnabled(false);
+                        resend_code.setTextColor(Color.parseColor("#999999"));
+                        resend_code.setText("Resend Code (" + millisUntilFinished / 1000 + "s)");
+                    }
+
+                    public void onFinish() {
+                        resend_code.setTextColor(Color.parseColor("#ff9933"));
+                        resend_code.setEnabled(true);
+                    }
+
+                }.start();
             }
         });
     }
@@ -160,7 +175,7 @@ public class VerifyPhone extends AppCompatActivity {
     private final PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
 
         @Override
-        public void onCodeSent(@org.jetbrains.annotations.NotNull @NotNull String s, @org.jetbrains.annotations.NotNull @NotNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+        public void onCodeSent(@NotNull String s, @NotNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(s, forceResendingToken);
 
             verificationId = s;
@@ -183,6 +198,7 @@ public class VerifyPhone extends AppCompatActivity {
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             Toast.makeText(VerifyPhone.this, e.getMessage(), Toast.LENGTH_LONG).show();
+            Log.d("Firebase exception: ,", e.getMessage());
         }
     };
 }

@@ -3,6 +3,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.inkhornsolutions.chjrider">
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission
@@ -21,34 +32,30 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CHJRider">
         <activity
-            android:name=".Profile"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".RequestLocation" />
-        <activity android:name=".Verified" />
-        <activity android:name=".VerifyPhone" />
-        <activity android:name=".Login" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:name="com.inkhornsolutions.chjrider.Profile"
+            android:parentActivityName="com.inkhornsolutions.chjrider.MainActivity" />
+        <activity android:name="com.inkhornsolutions.chjrider.RequestLocation" />
+        <activity android:name="com.inkhornsolutions.chjrider.Verified" />
+        <activity android:name="com.inkhornsolutions.chjrider.VerifyPhone" />
+        <activity android:name="com.inkhornsolutions.chjrider.Login" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="com.inkhornsolutions.chjrider.MainActivity"
             android:label="@string/title_activity_main" />
 
         <service
-            android:name=".Service.MyFirebaseService"
+            android:name="com.inkhornsolutions.chjrider.Service.MyFirebaseService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <activity android:name=".Splash">
+        <activity android:name="com.inkhornsolutions.chjrider.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

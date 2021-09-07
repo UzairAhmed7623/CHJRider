@@ -1,0 +1,195 @@
+{
+  "project_info": {
+    "project_number": "438055928659",
+    "firebase_url": "https://dashboard-1-77897.firebaseio.com",
+    "project_id": "dashboard-1-77897",
+    "storage_bucket": "dashboard-1-77897.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438055928659:android:66191c6d9c51ad6f2bd7a6",
+        "android_client_info": {
+          "package_name": "com.inkhornsolutions.chjrider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "438055928659-2cedhij7qkc6iamv9ks9n716dbn6hu33.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.chjrider",
+            "certificate_hash": "1ed90313935d19409bca77e80958a97574bb7148"
+          }
+        },
+        {
+          "client_id": "438055928659-e25sff2gvcs33ve6ame3o3sgqh02gg2r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.chjrider",
+            "certificate_hash": "cac8bf2e7337f0de3a7e2bb900d2915a988dcc09"
+          }
+        },
+        {
+          "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+        },
+        {
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438055928659:android:d58ba900e6dc76ae2bd7a6",
+        "android_client_info": {
+          "package_name": "com.inkhornsolutions.foodbox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "438055928659-42vf93itg8uqhhggul3ihsgk0qdv67am.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "d9ca305c82a8ab711072c00e35d4894cef441bb3"
+          }
+        },
+        {
+          "client_id": "438055928659-mk6qog50s1q20f3juihn2oqhshpbh7nt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "cac8bf2e7337f0de3a7e2bb900d2915a988dcc09"
+          }
+        },
+        {
+          "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+        },
+        {
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438055928659:android:24bfe4454e3cab772bd7a6",
+        "android_client_info": {
+          "package_name": "com.inkhornsolutions.kitchen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "438055928659-duarnjet10asdebsdkkimnin65ipm73p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "cac8bf2e7337f0de3a7e2bb900d2915a988dcc09"
+          }
+        },
+        {
+          "client_id": "438055928659-ghfq3oi58jcs63eoom183i990he179ge.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "9dd10832f7b2217ddb41c4113bc14996be7f04e4"
+          }
+        },
+        {
+          "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+        },
+        {
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438055928659:android:fab1dfdf29e455702bd7a6",
+        "android_client_info": {
+          "package_name": "com.inkhornsolutions.riderapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "438055928659-ek7i9apjb986nqgs5emdadq1ogd6v0vp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.riderapp",
+            "certificate_hash": "cac8bf2e7337f0de3a7e2bb900d2915a988dcc09"
+          }
+        },
+        {
+          "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+        },
+        {
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
