@@ -347,6 +347,8 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             String userId = driverRequestReceived.getKey();
             String orderId = driverRequestReceived.getOrderId();
 
+            addResNoOfOrdersToDatabase(kitchenKey);
+
             firebaseFirestore.collection("Users").document(userId)
                     .collection("Cart").whereEqualTo("ID", orderId)
                     .get()
@@ -473,10 +475,10 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                     @Override
                     public void onSuccess(QuerySnapshot querySnapshot) {
 
-                        for (DocumentSnapshot documentSnapshot1 : querySnapshot) {
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
 
-                            String kitchenId = documentSnapshot1.getId();
-                            String totalRevenue = documentSnapshot1.getString("totalRevenue");
+                            String kitchenId = documentSnapshot.getId();
+                            String totalRevenue = documentSnapshot.getString("totalRevenue");
 
                             Log.d("total", resRevenue + " " + totalRevenue + " " + kitchenId);
 
@@ -487,6 +489,38 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
                             firebaseFirestore.collection("Restaurants").document(kitchenId)
                                     .update(revenue)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            Log.d("database", "Successfully added!");
+
+                                        }
+                                    });
+                        }
+                    }
+                });
+    }
+
+    private void addResNoOfOrdersToDatabase(String kitchenKey) {
+        firebaseFirestore.collection("Restaurants").whereEqualTo("id", kitchenKey).get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot querySnapshot) {
+
+                        for (DocumentSnapshot documentSnapshot : querySnapshot) {
+
+                            String kitchenId = documentSnapshot.getId();
+                            String noOfOrders = documentSnapshot.getString("noOfOrders");
+
+                            double increment = Double.parseDouble(noOfOrders) + 1;
+
+                            Log.d("total", noOfOrders + " " + increment);
+
+                            HashMap<String, Object> updateNoOfOrders = new HashMap<>();
+                            updateNoOfOrders.put("noOfOrders", String.valueOf(increment));
+
+                            firebaseFirestore.collection("Restaurants").document(kitchenId)
+                                    .update(updateNoOfOrders)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
