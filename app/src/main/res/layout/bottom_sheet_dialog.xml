@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottomSheetLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottem_sheet_back"
+    android:backgroundTint="@color/myColorSecond"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="15dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <FrameLayout
+        android:id="@+id/bottomSheetView"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/bottomSheetView1"
+            android:layout_width="130dp"
+            android:layout_height="5dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_radius"
+            android:backgroundTint="@color/myColorThird" />
+
+        <View
+            android:id="@+id/bottomSheetView2"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:layout_marginTop="1dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/button_radius"
+            android:backgroundTint="@color/myColorThird" />
+
+    </FrameLayout>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnOffline"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="50dp"
+        android:backgroundTint="@color/myColor"
+        android:text="Go Offline"
+        android:textColor="@color/white"
+        android:layout_margin="20dp"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:textFontWeight="600"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="100dp"
+        />
+
+</LinearLayout>

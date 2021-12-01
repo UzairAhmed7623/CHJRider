@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -16,11 +17,15 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +33,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -64,6 +70,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -451,6 +459,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     };
+
     private void addCHJRevToDatabase(double CHJRevenueMinus, double chjRevenue, double resRevenue, String orderId, String restaurantName, String userId) {
         HashMap<String, Object> revRecord = new HashMap<>();
         revRecord.put("CHJRevenueMinus", String.valueOf(CHJRevenueMinus));
@@ -533,6 +542,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
+
+    private LinearLayout bottomSheetLayout;
+    private BottomSheetBehavior sheetBehavior;
+    private CoordinatorLayout bottomSheetCoordinatorLayout;
+
     @SuppressLint("NonMatchingStateSaverCalls")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -542,6 +556,11 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         id = firebaseAuth.getCurrentUser().getUid();
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
         Window window = this.getWindow();
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
@@ -607,12 +626,19 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
         btnContinueRide = (MaterialButton) findViewById(R.id.btnContinueRide);
         btnStopRiding = (MaterialButton) findViewById(R.id.btnStopRiding);
 
-        btnGoOnline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                yesterdayLayout.setVisibility(View.GONE);
+        //Bottom sheet layout
+//        View bottomSheetView = LayoutInflater.from(getApplicationContext()).inflate(R.layout.bottom_sheet_dialog, null);
+        bottomSheetCoordinatorLayout = findViewById(R.id.bottomSheetCoordinatorLayout);
+
+        SharedPreferences rideOnOff = getSharedPreferences("rideOnOffShared", MODE_PRIVATE);
+        String riderStatus = rideOnOff.getString("status", "offline");
+        if (!riderStatus.equals("offline")){
+            yesterdayLayout.setVisibility(View.GONE);
+                bottomSheetCoordinatorLayout.setVisibility(View.VISIBLE);
 
                 updateFirebaseToken();
+
+            if (locationCallback == null){
 
                 if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
@@ -627,12 +653,150 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                 buildLocationRequest();
                                 buildLocationCallBack();
                                 updateLocation();
+
+                                SharedPreferences rideOnOff1 = getSharedPreferences("rideOnOffShared", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = rideOnOff1.edit();
+                                editor.putString("status","online");
+                                editor.apply();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Toast.makeText(MainActivity.this, "dosra wala" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+            }
+
+        }
+        else {
+            rideSummaryLayout.setVisibility(View.GONE);
+            yesterdayLayout.setVisibility(View.VISIBLE);
+            if (mgoogleMap != null){
+                mgoogleMap.clear();
+            }
+            if (currentUserRef != null){
+                currentUserRef.removeValue();
+            }
+            if (locationCallback != null){
+
+                fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+            }
+            if (id != null){
+
+                if (geoFire != null) {
+
+                    geoFire.removeLocation(id);
+                }
+            }
+            SharedPreferences rideOnOff2 = getSharedPreferences("rideOnOffShared", MODE_PRIVATE);
+            SharedPreferences.Editor editor = rideOnOff2.edit();
+            editor.putString("status","offline");
+            editor.apply();
+        }
+
+
+        bottomSheetLayout = findViewById(R.id.bottomSheetLayout);
+        sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
+
+//        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MainActivity.this);
+
+//        bottomSheetDialog.getWindow().setBackgroundDrawable(ContextCompat.getDrawable(MainActivity.this,R.drawable.bottem_sheet_back));
+
+        Button btnOffline = (Button) findViewById(R.id.btnOffline);
+        FrameLayout bottomSheetView = (FrameLayout) findViewById(R.id.bottomSheetView);
+        View bottomSheetView1 = (View) findViewById(R.id.bottomSheetView1);
+
+        bottomSheetView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(sheetBehavior.getState() != BottomSheetBehavior.STATE_EXPANDED){
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                }
+
+            }
+        });
+
+        sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+            @Override
+            public void onStateChanged(@NonNull View bottomSheet, int newState) {
+            }
+            @Override
+            public void onSlide(@NonNull View bottomSheet, float slideOffset) {
+
+                bottomSheetView.setRotation(slideOffset * 180);
+            }
+        });
+
+        btnOffline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                rideSummaryLayout.setVisibility(View.GONE);
+                bottomSheetCoordinatorLayout.setVisibility(View.GONE);
+                yesterdayLayout.setVisibility(View.VISIBLE);
+                mgoogleMap.clear();
+                if (currentUserRef != null){
+                    currentUserRef.removeValue();
+                }
+
+                if (locationCallback != null){
+
+                    fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                }
+                if (id != null){
+
+                    if (geoFire != null) {
+
+                        geoFire.removeLocation(id);
+                    }
+                }
+
+                SharedPreferences rideOnOff = getSharedPreferences("rideOnOffShared", MODE_PRIVATE);
+                SharedPreferences.Editor editor = rideOnOff.edit();
+                editor.putString("status","offline");
+                editor.apply();
+            }
+        });
+
+//        bottomSheetDialog.setContentView(bottomSheetView);
+//        bottomSheetDialog.show();
+
+        btnGoOnline.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                yesterdayLayout.setVisibility(View.GONE);
+                bottomSheetCoordinatorLayout.setVisibility(View.VISIBLE);
+
+                updateFirebaseToken();
+                
+                if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                fusedLocationProviderClient.getLastLocation()
+                        .addOnSuccessListener(new OnSuccessListener<Location>() {
+                            @Override
+                            public void onSuccess(Location location) {
+                                LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                                mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
+
+                                buildLocationRequest();
+                                buildLocationCallBack();
+                                updateLocation();
+
+                                SharedPreferences rideOnOff = getSharedPreferences("rideOnOffShared", MODE_PRIVATE);
+                                SharedPreferences.Editor editor = rideOnOff.edit();
+                                editor.putString("status","online");
+                                editor.apply();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         });
             }
@@ -925,10 +1089,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
         stateSavePrefs = getSharedPreferences("stateSaver", MODE_PRIVATE);
         stateSavePrefs.edit().clear().apply();
@@ -1822,8 +1983,17 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onDestroy() {
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        geoFire.removeLocation(id);
+        if (locationCallback != null){
+
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
+        if (id != null){
+
+            if (geoFire != null) {
+
+                geoFire.removeLocation(id);
+            }
+        }
         super.onDestroy();
     }
 }

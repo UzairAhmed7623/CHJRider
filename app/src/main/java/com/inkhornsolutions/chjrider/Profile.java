@@ -396,7 +396,7 @@ public class Profile extends AppCompatActivity {
                                 if (report.areAllPermissionsGranted()) {
                                     ImagePicker.Companion.with(Profile.this)
                                             .cropSquare()
-                                            .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                                            .compress(1024)		//Final image size will be less than 1 MB(Optional)
                                             .start(REQUEST_IMAGE);
                                 }
                                 else {
