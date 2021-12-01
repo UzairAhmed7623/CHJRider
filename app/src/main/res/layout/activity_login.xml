@@ -89,7 +89,7 @@
             android:id="@+id/editTextPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="  323-333-12341"
+            android:hint="  3001234567"
             android:textColorHint="@color/grey_40"
             android:fontFamily="@font/montserra_regular_bold"
             android:padding="10dp"

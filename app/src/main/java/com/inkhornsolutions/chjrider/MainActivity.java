@@ -420,6 +420,21 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                                         addCHJRevToDatabase(CHJRevenueMinus, CHJRevenue, resRevenue, orderId, restaurantName, userId);
                                     }
                                 }
+                                else {
+                                    if (CHJPercentage != null && actualPrice != null){
+                                        Log.d("CHJRevenue1", ""+actualPrice);
+
+                                        double CHJRevenue = (Double.parseDouble(CHJPercentage) / 100) * Double.parseDouble(actualPrice);
+                                        Log.d("CHJRevenue3", ""+CHJRevenue);
+
+                                        double resRevenue = Double.parseDouble(actualPrice) - CHJRevenue;
+                                        Log.d("CHJRevenue4", ""+ resRevenue);
+
+                                        addResRevToDatabase(kitchenKey,resRevenue);
+                                        addCHJRevToDatabase(0.0, CHJRevenue, resRevenue, orderId, restaurantName, userId);
+                                    }
+
+                                }
                             }
                         }
                     });
@@ -648,7 +663,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             @Override
                             public void onSuccess(Location location) {
                                 LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
+//                                mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
 
                                 buildLocationRequest();
                                 buildLocationCallBack();
