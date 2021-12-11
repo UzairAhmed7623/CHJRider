@@ -88,6 +88,7 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
 import com.inkhornsolutions.chjrider.Common.Common;
@@ -293,13 +294,18 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
 
+            Log.d("TAGGG", "tripId"+tripNumberId);
+
             tvOrderRefNoRideSummary.setText(driverRequestReceived.getOrderId());
             FirebaseDatabase.getInstance().getReference("Trips").child(tripNumberId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
-                        String distancePickup = snapshot.child("distancePickup").getValue().toString().replace("km", "");
-                        String dropOffDistance = snapshot.child("distanceDestination").getValue().toString().replace("km", "");
+                        String distancePickup = snapshot.child("distancePickup").getValue().toString().replace("km", "")
+                                .replace("m","").trim();
+                        String dropOffDistance = snapshot.child("distanceDestination").getValue().toString().replace("km", "")
+                                .replace("m","").trim();
+
 
                         Log.d("address1", "" + distancePickup + "");
                         Log.d("address1", "" + dropOffDistance + "");
@@ -335,25 +341,47 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     });
 
-            firebaseFirestore.collection("Users").document(driverRequestReceived.getKey())
-                    .collection("Cart").document(driverRequestReceived.getOrderId())
-                    .update("status","Completed")
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull @NotNull Task<Void> task) {
-                            Log.d("Completed", "Completed");
+            firebaseFirestore.collection("Users").document(driverRequestReceived.getDropOffUserId())
+                    .collection("Cart")
+                    .whereEqualTo("ID",driverRequestReceived.getOrderId())
+                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot querySnapshot) {
+                    for (DocumentSnapshot documentSnapshot: querySnapshot.getDocuments()){
+                        if (documentSnapshot.exists()){
+                            String orderDocId = documentSnapshot.getId();
+
+                            firebaseFirestore.collection("Users").document(driverRequestReceived.getDropOffUserId())
+                                    .collection("Cart").document(orderDocId)
+                                    .update("status","Completed")
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                            Log.d("Completed", "Completed");
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @NotNull Exception e) {
+                                            Log.d("Done", e.getMessage());
+                                        }
+                                    });
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull @NotNull Exception e) {
-                            Log.d("Done", e.getMessage());
-                        }
-                    });
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
 
             String kitchenKey = tripPlanModel.getRider();
-            String userId = driverRequestReceived.getKey();
+            String userId = driverRequestReceived.getDropOffUserId();
             String orderId = driverRequestReceived.getOrderId();
+
+            Log.d("TAGGG", "kitchenKey: "+kitchenKey+"  userId: "+userId+"  orderId: "+orderId);
 
             addResNoOfOrdersToDatabase(kitchenKey);
 
@@ -525,6 +553,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                 });
     }
 
+    double increment = 0.0;
     private void addResNoOfOrdersToDatabase(String kitchenKey) {
         firebaseFirestore.collection("Restaurants").whereEqualTo("id", kitchenKey).get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -536,7 +565,14 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             String kitchenId = documentSnapshot.getId();
                             String noOfOrders = documentSnapshot.getString("noOfOrders");
 
-                            double increment = Double.parseDouble(noOfOrders) + 1;
+
+                            if (documentSnapshot.getString("noOfOrders") != null){
+                                increment = Double.parseDouble(noOfOrders) + 1;
+                            }
+                            else {
+                                increment = 1;
+                            }
+
 
                             Log.d("total", noOfOrders + " " + increment);
 
@@ -544,7 +580,7 @@ public class MainActivity extends FragmentActivity implements OnMapReadyCallback
                             updateNoOfOrders.put("noOfOrders", String.valueOf(increment));
 
                             firebaseFirestore.collection("Restaurants").document(kitchenId)
-                                    .update(updateNoOfOrders)
+                                    .set(updateNoOfOrders, SetOptions.merge())
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {

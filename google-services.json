@@ -8,26 +8,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:438055928659:android:66191c6d9c51ad6f2bd7a6",
+        "mobilesdk_app_id": "1:438055928659:android:983dfba69dba81c52bd7a6",
         "android_client_info": {
-          "package_name": "com.inkhornsolutions.chjrider"
+          "package_name": "com.inkhornsolutions.chjdelivery"
         }
       },
       "oauth_client": [
         {
-          "client_id": "438055928659-2cedhij7qkc6iamv9ks9n716dbn6hu33.apps.googleusercontent.com",
+          "client_id": "438055928659-uanjv6rgrjl5e76ht9ii6l3q1mju7jhe.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.inkhornsolutions.chjrider",
-            "certificate_hash": "1ed90313935d19409bca77e80958a97574bb7148"
-          }
-        },
-        {
-          "client_id": "438055928659-e25sff2gvcs33ve6ame3o3sgqh02gg2r.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.inkhornsolutions.chjrider",
-            "certificate_hash": "cac8bf2e7337f0de3a7e2bb900d2915a988dcc09"
+            "package_name": "com.inkhornsolutions.chjdelivery",
+            "certificate_hash": "cd1a7e6a03d65ec421318552e80b43d465914a88"
           }
         },
         {
@@ -37,10 +29,50 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
         },
         {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438055928659:android:7cbdecc6d3241bc42bd7a6",
+        "android_client_info": {
+          "package_name": "com.inkhornsolutions.chjrider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "438055928659-pi92lbt2hakg95n1tqb9vl4aauv7uvp0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.chjrider",
+            "certificate_hash": "cd1a7e6a03d65ec421318552e80b43d465914a88"
+          }
+        },
+        {
+          "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
           "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+        },
+        {
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
         }
       ],
       "services": {
@@ -63,11 +95,35 @@
       },
       "oauth_client": [
         {
-          "client_id": "438055928659-42vf93itg8uqhhggul3ihsgk0qdv67am.apps.googleusercontent.com",
+          "client_id": "438055928659-8bide7fush0d7ifffelemj2vnjrc299b.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.inkhornsolutions.foodbox",
-            "certificate_hash": "d9ca305c82a8ab711072c00e35d4894cef441bb3"
+            "certificate_hash": "379ac8f7a447436c75bd5c80f2d515aa4ab5f4fc"
+          }
+        },
+        {
+          "client_id": "438055928659-a12gs2qqim08kqm9s127a2012t9itsfh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "a59ebd0c9c3290ae1f7d1e67c52b314cad453ec7"
+          }
+        },
+        {
+          "client_id": "438055928659-jelfm4993krokouvhiopon1ki3v3t7b2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "1ed90313935d19409bca77e80958a97574bb7148"
+          }
+        },
+        {
+          "client_id": "438055928659-mer0njkckd2pg0d2f5r0tjhm273efa5t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "33ecba96683c0a84622124ec3c79c7d5567d4880"
           }
         },
         {
@@ -79,16 +135,32 @@
           }
         },
         {
+          "client_id": "438055928659-ti3diaq5m7dtkbt6t1gckcpc6t7ra6vi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "cd1a7e6a03d65ec421318552e80b43d465914a88"
+          }
+        },
+        {
+          "client_id": "438055928659-tmendua5tbfvlrfbbhj5d6qc123b496j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.foodbox",
+            "certificate_hash": "d9ca305c82a8ab711072c00e35d4894cef441bb3"
+          }
+        },
+        {
           "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
         },
         {
-          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
         }
       ],
       "services": {
@@ -119,11 +191,43 @@
           }
         },
         {
+          "client_id": "438055928659-gesuf37iodre37oeudo51n38dr5ipdjr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "cd1a7e6a03d65ec421318552e80b43d465914a88"
+          }
+        },
+        {
           "client_id": "438055928659-ghfq3oi58jcs63eoom183i990he179ge.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.inkhornsolutions.kitchen",
             "certificate_hash": "9dd10832f7b2217ddb41c4113bc14996be7f04e4"
+          }
+        },
+        {
+          "client_id": "438055928659-j6j4lv2i4t67v0st5sucno87rn0148mr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "c19786f58f42a5c0c9c032c8a88d8549c5b2d71f"
+          }
+        },
+        {
+          "client_id": "438055928659-lt9a5l7o5nso4sjllncqp76m8g1dcjov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "a59ebd0c9c3290ae1f7d1e67c52b314cad453ec7"
+          }
+        },
+        {
+          "client_id": "438055928659-vak5i76q0n9u7c5dqlrbh0ha0uclfrah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "379ac8f7a447436c75bd5c80f2d515aa4ab5f4fc"
           }
         },
         {
@@ -133,10 +237,10 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
         },
         {
-          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
         }
       ],
       "services": {
@@ -159,6 +263,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "438055928659-1qgfh3k8oh103h1dtsdoh351v5iscts3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.riderapp",
+            "certificate_hash": "46db44939e28e0d928608eb5cafcf358b1514c8e"
+          }
+        },
+        {
           "client_id": "438055928659-ek7i9apjb986nqgs5emdadq1ogd6v0vp.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -173,10 +285,10 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
+          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
         },
         {
-          "current_key": "AIzaSyALFgAH2XfwOFMG5TYwSmIIOO8fQ5kmUiQ"
+          "current_key": "AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew"
         }
       ],
       "services": {
